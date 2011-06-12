@@ -1,0 +1,4 @@
+key,name,type,description,owner,attrs
+'example','Example Person','person','This is an example person.','manager','{"location":"Example Land"}'
+'spacecore','Space Core','thing','Space Core wants to goto space.','manager','{"location":"Not in Space", "website":"http://spaaaaaaaaaaaaaaaaaaaaaaaccee.com/","dept": "Aperture Laboratories"}'
+'example2','Example Person','person','This is an example person.','manager','{"location":"Example Land"}'

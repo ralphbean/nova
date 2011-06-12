@@ -32,6 +32,8 @@ class Vocab(DeclarativeBase):
 
     description = Column(Unicode, nullable=True)
 
+    default = Column(Unicode, nullable=True)
+
     #}
 
 class NodeType(DeclarativeBase):
@@ -48,7 +50,7 @@ class NodeType(DeclarativeBase):
 
     icon = Column(Unicode(255), nullable=True)
 
-    req_attrs = relation('Vocab', secondary=vocab_nodetype_table)
+    req_attrs = relation('Vocab', secondary=vocab_nodetype_table, uselist=True)
     #}
 
 
@@ -61,14 +63,14 @@ class Node(DeclarativeBase):
     id = Column(Integer, primary_key=True)
 
     node_type_id = Column(Integer, ForeignKey('nodetype_model.id'))
-    node_type = relationship("NodeType", backref=backref("Node", uselist=False))
+    node_type = relationship("NodeType")
 
     name = Column(Unicode, nullable=False)
-    short_name = Column(Unicode(255), nullable=False)
+    key = Column(Unicode(255), nullable=False)
 
     owner_id = Column(Integer, ForeignKey('tg_user.user_id'))
-    owner = relationship("User", backref=backref("Node", uselist=False))
- 
+    owner = relationship("User") 
+
     picture = Column(Unicode, nullable=True)
     attrs = Column(PickleType(pickler=json), nullable=True)
 

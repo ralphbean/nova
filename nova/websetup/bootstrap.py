@@ -53,17 +53,19 @@ def bootstrap(command, conf, vars):
         transaction.abort()
         print 'Continuing with bootstrapping...'
         
+        model.DBSession.autoflush = False
     try:
         import csv
         from json import loads
         # Import Vocab Table
         csv_vocab = csv.reader(open("nova/websetup/vocab.csv"), quoting=csv.QUOTE_MINIMAL, quotechar="'", doublequote=True)
         csv_vocab.next()
-        for k, n, d in csv_vocab:
+        for k, n, d, default in csv_vocab:
             v = model.Vocab()
             v.key = k
             v.name = n
             v.description = d
+            v.default = default
 
             model.DBSession.add(v)
         
@@ -71,7 +73,7 @@ def bootstrap(command, conf, vars):
         transaction.commit()
 
         # Import NodeType Tables
-        csv_types = csv.reader(open("nova/websetup/types.csv"), quoting=csv.QUOTE_MINIMAL, quotechar="'")
+        csv_types = csv.reader(open("nova/websetup/types.csv"), quoting=csv.QUOTE_MINIMAL, quotechar="'", doublequote=True)
         csv_types.next()
         for k, n, d, attrs in csv_types:
             t = model.NodeType()
@@ -88,11 +90,42 @@ def bootstrap(command, conf, vars):
 
             model.DBSession.add(t)
 
-        model.DBSession.flush()        
+        model.DBSession.flush()  
         transaction.commit()
 
+        # Import sample nodes
+        csv_nodes = csv.reader(open("nova/websetup/nodes.csv"), quoting=csv.QUOTE_MINIMAL, quotechar="'", doublequote=True)
+        csv_nodes.next()
+
+        for k, n, t, d, o, a in csv_nodes:
+            try:
+                node = model.Node()
+                node.key = k
+                node.name = n
+                node.description = d
+                print "HERE %s"%o
+                node.node_type = (model.DBSession.query(model.NodeType).filter(model.NodeType.key.like("%%%s%%"%t)).one())
+                node.owner = (model.DBSession.query(model.User).filter(model.User.user_name.like("%%%s%%"%o)).one())
+                print "%s LOOK HERE: %s" %(k, node.owner)
+
+                # Fill in the gaps in our attribute information
+                imp_attrs = loads(a)
+                req_attrs = node.node_type.req_attrs
+                for attr in req_attrs:
+                    if attr.key not in imp_attrs:
+                        imp_attrs[attr.key] = attr.default
+                node.attrs = imp_attrs
+                model.DBSession.add(node)
+
+            except MultipleResultsFound:
+                raise IntegrityError
+
+            model.DBSession.flush()
+            transaction.commit()
+
+            
     except IntegrityError:
-        print 'Warning, there was a problem adding the nova data, it may have already been added:'
+        print 'Warning, there was a problem adding the NOVA data, it may have already been added:'
         import traceback
         print traceback.format_exc()
         transaction.abort()
