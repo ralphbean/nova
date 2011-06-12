@@ -1,5 +1,8 @@
 key,name,description
-"dept","Department","The department on campus you belong to."
-"website","Website","Your personal website."
-"insp-person","Inspired to join by","The person that inspired you to join us."
-"location","Location","Your current location (Office, Maker Space, etc)."
+'dept','Department','The department on campus you belong to.'
+'website','Website','Your personal website.'
+'insp-person','Inspired to join by','The person that inspired you to join us.'
+'location','Location','The %s''s location (Office, Maker Space, etc).'
+'major','Major','Your current major.'
+'lead-person','Lead Person','The leader of the %s.'
+'event-date','Event Date','Date the event will occur'

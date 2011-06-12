@@ -7,11 +7,11 @@ from nova import model
 
 import transaction
 
-
 def bootstrap(command, conf, vars):
     """Place any commands to setup nova here"""
 
     # <websetup.bootstrap.before.auth
+    from sqlalchemy.orm.exc import MultipleResultsFound
     from sqlalchemy.exc import IntegrityError
     try:
         u = model.User()
@@ -55,7 +55,9 @@ def bootstrap(command, conf, vars):
         
     try:
         import csv
-        csv_vocab = csv.reader(open("nova/websetup/vocab.csv"), quoting=csv.QUOTE_MINIMAL, quotechar='"')
+        from json import loads
+        # Import Vocab Table
+        csv_vocab = csv.reader(open("nova/websetup/vocab.csv"), quoting=csv.QUOTE_MINIMAL, quotechar="'", doublequote=True)
         csv_vocab.next()
         for k, n, d in csv_vocab:
             v = model.Vocab()
@@ -64,12 +66,33 @@ def bootstrap(command, conf, vars):
             v.description = d
 
             model.DBSession.add(v)
+        
+        model.DBSession.flush()
+        transaction.commit()
+
+        # Import NodeType Tables
+        csv_types = csv.reader(open("nova/websetup/types.csv"), quoting=csv.QUOTE_MINIMAL, quotechar="'")
+        csv_types.next()
+        for k, n, d, attrs in csv_types:
+            t = model.NodeType()
+            t.key =  k
+            t.name = n
+            t.description = d
+            dec_attrs = loads(attrs)
+            for attr in dec_attrs:
+                try:
+                    t.req_attrs.append(model.DBSession.query(model.Vocab).filter(model.Vocab.key == attr).one())
+
+                except MultipleResultsFound:
+                    raise IntegrityError
+
+            model.DBSession.add(t)
 
         model.DBSession.flush()        
         transaction.commit()
 
     except IntegrityError:
-        print 'Warning, there was a problem adding your vocab data, it may have already been added:'
+        print 'Warning, there was a problem adding the nova data, it may have already been added:'
         import traceback
         print traceback.format_exc()
         transaction.abort()

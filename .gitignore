@@ -2,3 +2,5 @@
 *.pyo
 *.db
 *.egg-info
+*~
+*.swp
