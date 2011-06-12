@@ -17,14 +17,14 @@
 
 <h2>Attributes</h2>
 <ul>
-    <py:for each="key in dict((k,node.attrs[k]) for k in node.attrs if node.attrs[k] is not None and node.attrs[k] is not '')">
+    <py:for each="key in dict((k,node.attrs[k]) for k in node.attrs if node.attrs[k].data is not None and node.attrs[k].data is not '')">
     <li py:with="v = node.attrs[key]">
     <py:choose>
-        <a py:when="key == u'website'" py:attrs="{'href':v, 'title':'%s\'s Website'%node.name}">Website</a>
-        <py:when test="key == u'insp-person'">Inspired to join by: 
-            <a py:attrs="{'href':'/node/%s'%v.key,'title':v.name}">${v.name}</a>
+        <a py:when="key == u'website'" py:attrs="{'href':v.data, 'title':'%s\'s Website'%node.name}">Website</a>
+        <py:when test="key == u'insp-person'">${v.vocab.name}: 
+            <a py:attrs="{'href':'/node/%s'%v.data.key,'title':v.data.name}">${v.data.name}</a>
         </py:when>
-        <py:otherwise>${key}: ${v}</py:otherwise>
+        <py:otherwise>${v.vocab.name}: ${v.data}</py:otherwise>
     </py:choose>
     </li>
     </py:for>

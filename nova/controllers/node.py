@@ -38,16 +38,16 @@ class NodeEntryController(object):
     @expose('nova.templates.node.index')
     def index(self):
         for attr in self.node.attrs:
-            res = DBSession.query(Vocab).filter(Vocab.key.like("%%%s%%"%attr)).one().resolve
- 
-            if res:
+            v = DBSession.query(Vocab).filter(Vocab.key.like("%%%s%%"%attr)).one()
+            
+            if v.resolve:
                 if self.node.attrs[attr] is not '':
                     t_obj = DBSession.query(Node).filter(Node.key.like("%%%s%%"%self.node.attrs[attr])).one()
                 else:
                     t_obj = None    
                 self.node.attrs[attr] = t_obj
 
-        self.node.attrs = dict(self.node.attrs)
+            self.node.attrs[attr] = {'data':self.node.attrs[attr], 'vocab':v}
 
         #raise ValueError(self.node.attrs.__class__.__name__)
 
