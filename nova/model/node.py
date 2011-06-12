@@ -21,6 +21,7 @@ vocab_nodetype_table = Table('vocab_nodetype_table', metadata,
 
 
 class Vocab(DeclarativeBase):
+    '''An object defining an node attribute'''
     __tablename__ = 'vocab_model'
 
     #{ Columns
@@ -34,6 +35,7 @@ class Vocab(DeclarativeBase):
     #}
 
 class NodeType(DeclarativeBase):
+    '''An object defining a node'''
     __tablename__ = 'nodetype_model'
     
     #{ Columns
@@ -51,6 +53,7 @@ class NodeType(DeclarativeBase):
 
 
 class Node(DeclarativeBase):
+    '''An object describing an item in the NOVA'''
     __tablename__ = 'node_model'
     
     #{ Columns
@@ -62,7 +65,9 @@ class Node(DeclarativeBase):
 
     name = Column(Unicode, nullable=False)
     short_name = Column(Unicode(255), nullable=False)
-    #owner = Column()
+
+    owner_id = Column(Integer, ForeignKey('tg_user.user_id'))
+    owner = relationship("User", backref=backref("Node", uselist=False))
  
     picture = Column(Unicode, nullable=True)
     attrs = Column(PickleType(pickler=json), nullable=True)
@@ -78,6 +83,7 @@ class Node(DeclarativeBase):
     #}
 
 class NodeRevision(DeclarativeBase):
+    '''An object containing information about a modification done to a node'''
     __tablename__ = 'revision_model'
     
     #{ Columns
