@@ -60,12 +60,13 @@ def bootstrap(command, conf, vars):
         # Import Vocab Table
         csv_vocab = csv.reader(open("nova/websetup/vocab.csv"), quoting=csv.QUOTE_MINIMAL, quotechar="'", doublequote=True)
         csv_vocab.next()
-        for k, n, d, default in csv_vocab:
+        for k, n, d, default, r in csv_vocab:
             v = model.Vocab()
             v.key = k
             v.name = n
             v.description = d
             v.default = default
+            v.resolve = True if r.lower() == "t" else False
 
             model.DBSession.add(v)
         
@@ -116,6 +117,12 @@ def bootstrap(command, conf, vars):
                         imp_attrs[attr.key] = attr.default
                 node.attrs = imp_attrs
                 model.DBSession.add(node)
+
+                rev = model.NodeRevision()
+                rev.node = node
+                rev.description = "Creation, Imported via CSV"
+
+                model.DBSession.add(rev)
 
             except MultipleResultsFound:
                 raise IntegrityError

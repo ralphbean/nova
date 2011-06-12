@@ -317,3 +317,13 @@ font-weight:bold;
 div.clearingdiv {
 clear:both;
 }
+
+.subscript {
+font-size:xx-small; 
+vertical-align:bottom;
+}
+
+.superscript {
+font-size:xx-small; 
+vertical-align:top;
+}

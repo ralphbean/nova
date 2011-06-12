@@ -27,13 +27,14 @@ class Vocab(DeclarativeBase):
     #{ Columns
     id = Column(Integer, primary_key=True)
 
-    key = Column(Unicode(255), nullable=False)
+    key = Column(Unicode(255), nullable=False, unique=True)
     name = Column(Unicode(255), nullable=False)
 
     description = Column(Unicode, nullable=True)
 
     default = Column(Unicode, nullable=True)
 
+    resolve = Column(Boolean)
     #}
 
 class NodeType(DeclarativeBase):
@@ -43,7 +44,7 @@ class NodeType(DeclarativeBase):
     #{ Columns
 
     id = Column(Integer, primary_key=True)
-    key = Column(Unicode(255), nullable=False)
+    key = Column(Unicode(255), nullable=False, unique=True)
 
     name = Column(Unicode, nullable=False)
     description = Column(Unicode, nullable=True)
@@ -66,7 +67,7 @@ class Node(DeclarativeBase):
     node_type = relationship("NodeType")
 
     name = Column(Unicode, nullable=False)
-    key = Column(Unicode(255), nullable=False)
+    key = Column(Unicode(255), nullable=False, unique=True)
 
     owner_id = Column(Integer, ForeignKey('tg_user.user_id'))
     owner = relationship("User") 

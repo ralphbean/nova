@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <title>Nova TG2 Refactor Beta</title>
+</head>
+
+<body>
+<h1>${node.name}<span class="subscript">${node.node_type.name}</span></h1>
+<p>${node.description}</p>
+
+<h2>Attributes</h2>
+<ul>
+    <py:for each="key in dict((k,node.attrs[k]) for k in node.attrs if node.attrs[k] is not None and node.attrs[k] is not '')">
+    <li py:with="v = node.attrs[key]">
+    <py:choose>
+        <a py:when="key == u'website'" py:attrs="{'href':v, 'title':'%s\'s Website'%node.name}">Website</a>
+        <py:when test="key == u'insp-person'">Inspired to join by: 
+            <a py:attrs="{'href':'/node/%s'%v.key,'title':v.name}">${v.name}</a>
+        </py:when>
+        <py:otherwise>${key}: ${v}</py:otherwise>
+    </py:choose>
+    </li>
+    </py:for>
+</ul>
+
+<h2>Revisions:</h2>
+<ol>
+    <li py:for="update in node.revisions">
+        ${update.description} on ${update.modified}.
+    </li>
+</ol>
+</body>
+</html>

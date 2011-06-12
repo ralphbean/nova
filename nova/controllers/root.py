@@ -11,6 +11,7 @@ from nova import model
 from nova.controllers.secure import SecureController
 
 from nova.controllers.error import ErrorController
+from nova.controllers.node import NodeController
 
 __all__ = ['RootController']
 
@@ -30,13 +31,13 @@ class RootController(BaseController):
 
     """
     secc = SecureController()
-
+    node = NodeController()
     error = ErrorController()
-
-    @expose('nova.templates.index')
+    
+    @expose()
     def index(self):
         """Handle the front-page."""
-        return dict(page='index')
+        redirect('/node')
 
     @expose('nova.templates.about')
     def about(self):
