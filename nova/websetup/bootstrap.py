@@ -18,7 +18,7 @@ def bootstrap(command, conf, vars):
         u.user_name = u'manager'
         u.display_name = u'Example manager'
         u.email_address = u'manager@somedomain.com'
-        u.password = u'managepass'
+        u.password = u'password'
     
         model.DBSession.add(u)
     
@@ -104,10 +104,9 @@ def bootstrap(command, conf, vars):
                 node.key = k
                 node.name = n
                 node.description = d
-                print "HERE %s"%o
                 node.node_type = (model.DBSession.query(model.NodeType).filter(model.NodeType.key.like("%%%s%%"%t)).one())
                 node.owner = (model.DBSession.query(model.User).filter(model.User.user_name.like("%%%s%%"%o)).one())
-                print "%s LOOK HERE: %s" %(k, node.owner)
+                node.editors.append(node.owner)
 
                 # Fill in the gaps in our attribute information
                 imp_attrs = loads(a)

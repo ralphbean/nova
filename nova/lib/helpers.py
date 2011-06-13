@@ -3,3 +3,4 @@
 """WebHelpers used in nova."""
 
 from webhelpers import date, feedgenerator, html, number, misc, text
+import markdown

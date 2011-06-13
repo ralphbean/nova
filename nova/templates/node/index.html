@@ -12,29 +12,40 @@
 </head>
 
 <body>
-<h1>${node.name}<span class="subscript">${node.node_type.name}</span></h1>
-<p>${node.description}</p>
+<div class="container" style="clear:both; padding-top:1em;">
+<div style="float:left;width:200px;margin-right:2em;">
+  <img style="float:left;" py:attrs="{'src': node.picture if node.picture is not None else '/images/no_bio_image.gif'}" />
+</div>
 
-<h2>Attributes</h2>
+<div style="float:left;">
+<h1 style="margin-top:0;">${node.name}<span class="subscript">${node.node_type.name}</span></h1>
+<p>${ Markup( markdown.markdown( node.description, safe_mode="replace" ) ) }</p>
+
+<h2>Attributes:</h2>
 <ul>
     <py:for each="key in dict((k,node.attrs[k]) for k in node.attrs if node.attrs[k].data is not None and node.attrs[k].data is not '')">
     <li py:with="v = node.attrs[key]">
     <py:choose>
         <a py:when="key == u'website'" py:attrs="{'href':v.data, 'title':'%s\'s Website'%node.name}">Website</a>
-        <py:when test="key == u'insp-person'">${v.vocab.name}: 
-            <a py:attrs="{'href':'/node/%s'%v.data.key,'title':v.data.name}">${v.data.name}</a>
+        <py:when test="key == u'insp-person'">${v.vocab.name}: <a py:attrs="{'href':'/%s'%v.data.key,'title':v.data.name}">${v.data.name}</a>
         </py:when>
         <py:otherwise>${v.vocab.name}: ${v.data}</py:otherwise>
     </py:choose>
     </li>
     </py:for>
 </ul>
-
+${node.watching}
 <h2>Revisions:</h2>
 <ol>
     <li py:for="update in node.revisions">
         ${update.description} on ${update.modified}.
     </li>
 </ol>
+<p class="guid">GUID: ${node.id}</p>
+</div>
+<div style="float:right;clear:both;">
+${qrcode.display()}
+</div>
+</div>
 </body>
 </html>

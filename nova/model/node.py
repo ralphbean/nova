@@ -11,6 +11,7 @@ from nova.model import DeclarativeBase, metadata, DBSession
 
 import json
 from datetime import datetime
+from uuid import uuid4
 
 vocab_nodetype_table = Table('vocab_nodetype_table', metadata,
     Column('vocab_id', Integer, ForeignKey('vocab_model.id',
@@ -18,7 +19,11 @@ vocab_nodetype_table = Table('vocab_nodetype_table', metadata,
     Column('nodetype_id', Integer, ForeignKey('nodetype_model.id',
         onupdate="CASCADE", ondelete="CASCADE"), primary_key=True))
 
-
+node_editor_table = Table('nodeeditor_tg_user', metadata,
+    Column('node_id', String(36), ForeignKey('node_model.id',
+        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True),
+    Column('user_id', Integer, ForeignKey('tg_user.user_id',
+        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True))
 
 class Vocab(DeclarativeBase):
     '''An object defining an node attribute'''
@@ -61,7 +66,7 @@ class Node(DeclarativeBase):
     
     #{ Columns
     
-    id = Column(Integer, primary_key=True)
+    id = Column(String(36), primary_key=True, default=lambda : str(uuid4()))
 
     node_type_id = Column(Integer, ForeignKey('nodetype_model.id'))
     node_type = relationship("NodeType")
@@ -83,7 +88,20 @@ class Node(DeclarativeBase):
     tags = Column(PickleType(pickler=json), nullable=True)
 
     revisions = relationship("NodeRevision", backref="node")
+
+    editors = relationship('User', backref="editing", secondary=node_editor_table, uselist=True)
+
     #}
+
+class NodeWatch(DeclarativeBase):
+    __tablename__ = "node_watch"
+    id = Column(String(36), primary_key=True, default=lambda : str(uuid4()))
+
+    watched_by_id = Column("watched_by_id", String(36), ForeignKey("node_model.id"))
+    watched_by = relationship("Node", backref="watching",  primaryjoin=(Node.id == watched_by_id))
+    watched_id = Column("watch_id", String(36), ForeignKey("node_model.id"))
+    watched = relationship("Node", backref="watched_by",  primaryjoin=(Node.id == watched_id))
+
 
 class NodeRevision(DeclarativeBase):
     '''An object containing information about a modification done to a node'''
@@ -91,7 +109,7 @@ class NodeRevision(DeclarativeBase):
     
     #{ Columns
 
-    id = Column(Integer, primary_key=True)
+    id = Column(String(36), primary_key=True, default=lambda : str(uuid4()))
 
     node_id = Column(Integer, ForeignKey('node_model.id'))
     

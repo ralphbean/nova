@@ -11,7 +11,7 @@ from nova import model
 from nova.controllers.secure import SecureController
 
 from nova.controllers.error import ErrorController
-from nova.controllers.node import NodeController
+from nova.controllers.node import NodeEntryController
 
 __all__ = ['RootController']
 
@@ -31,13 +31,20 @@ class RootController(BaseController):
 
     """
     secc = SecureController()
-    node = NodeController()
     error = ErrorController()
     
-    @expose()
+    @expose('nova.templates.index')
     def index(self):
-        """Handle the front-page."""
-        redirect('/node')
+        page = "index"
+        # must be the index
+        latest_updates = DBSession.query(model.Node).order_by('modified desc').limit(10)
+        return dict(page="index", updates=latest_updates)
+
+    @expose()
+    def _lookup(self, node_name, *remainder):
+        nc = NodeEntryController(node_name)
+        return nc, remainder
+
 
     @expose('nova.templates.about')
     def about(self):
@@ -92,7 +99,7 @@ class RootController(BaseController):
             redirect('/login', came_from=came_from, __logins=login_counter)
         userid = request.identity['repoze.who.userid']
         flash(_('Welcome back, %s!') % userid)
-        redirect(came_from)
+        redirect("/%s"%userid)
 
     @expose()
     def post_logout(self, came_from=url('/')):
@@ -102,4 +109,4 @@ class RootController(BaseController):
 
         """
         flash(_('We hope to see you soon!'))
-        redirect(came_from)
+        redirect('/')

@@ -2,7 +2,7 @@
 """Sample controller module"""
 
 # turbogears imports
-from tg import expose
+from tg import expose, url
 from tg import redirect, validate, flash
 
 # third party imports
@@ -13,23 +13,9 @@ from tg import redirect, validate, flash
 from nova.lib.base import BaseController
 from nova.model import DBSession, metadata, Node, Vocab
 from sqlalchemy.orm.exc import MultipleResultsFound
+from tw2.qrcode import QRCodeWidget
 
-class NodeController(BaseController):
-    #Uncomment this line if your controller requires an authenticated user
-    #allow_only = authorize.not_anonymous()
-    
-    @expose('nova.templates.index')
-    def index(self):
-        page = "index"
-        # must be the index
-        latest_updates = DBSession.query(Node).order_by('modified desc').limit(10)
-        return dict(page="index", updates=latest_updates)
-
-    @expose()
-    def _lookup(self, node_name, *remainder):
-        nc = NodeEntryController(node_name)
-        return nc, remainder
-
+import markdown
 
 class NodeEntryController(object):
     def __init__(self, node_name):
@@ -37,6 +23,8 @@ class NodeEntryController(object):
 
     @expose('nova.templates.node.index')
     def index(self):
+        qr = QRCodeWidget(id="nodeqr", data=url("http://127.0.0.1/%s"%self.node.key))
+
         for attr in self.node.attrs:
             v = DBSession.query(Vocab).filter(Vocab.key.like("%%%s%%"%attr)).one()
             
@@ -51,6 +39,6 @@ class NodeEntryController(object):
 
         #raise ValueError(self.node.attrs.__class__.__name__)
 
-        return dict(page="node.index", node=self.node)
+        return dict(page="node.index", node=self.node, markdown=markdown, qrcode=qr)
 
 

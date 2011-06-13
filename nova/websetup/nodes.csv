@@ -1,4 +1,4 @@
 key,name,type,description,owner,attrs
-'wheatly','Wheatly','thing','A core with increasingly bad desisions.','manager','{"location":"Relaxation Center","dept":"Aperture Laboratories"}'
+'wheatly','Wheatly','thing','A core with **increasingly** bad desisions.','manager','{"location":"Relaxation Center","dept":"Aperture Laboratories"}'
 'spacecore','Space Core','person','Space Core wants to goto space.','manager','{"location":"Not in Space", "website":"http://spaaaaaaaaaaaaaaaaaaaaaaaccee.com/","dept": "Aperture Laboratories"}'
-'example2','Example Person','person','This is an example person.','manager','{"location":"Example Land","insp-person":"spacecore"}'
+'manager','Manager','person','This is the manager''s default node.','manager','{"location":"Example Land","insp-person":"spacecore"}'
