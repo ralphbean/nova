@@ -37,8 +37,5 @@ class NodeEntryController(object):
 
             self.node.attrs[attr] = {'data':self.node.attrs[attr], 'vocab':v}
 
-        #raise ValueError(self.node.attrs.__class__.__name__)
-
         return dict(page="node.index", node=self.node, markdown=markdown, qrcode=qr)
-
 

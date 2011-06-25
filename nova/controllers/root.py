@@ -12,6 +12,7 @@ from nova.controllers.secure import SecureController
 
 from nova.controllers.error import ErrorController
 from nova.controllers.node import NodeEntryController
+from nova.controllers.node_rest import NodeRestController
 
 __all__ = ['RootController']
 
@@ -32,13 +33,11 @@ class RootController(BaseController):
     """
     secc = SecureController()
     error = ErrorController()
+    node = NodeRestController()
     
     @expose('nova.templates.index')
     def index(self):
-        page = "index"
-        # must be the index
-        latest_updates = DBSession.query(model.Node).order_by('modified desc').limit(10)
-        return dict(page="index", updates=latest_updates)
+        return redirect('/node')
 
     @expose()
     def _lookup(self, node_name, *remainder):

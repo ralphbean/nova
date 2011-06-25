@@ -53,6 +53,7 @@ class NodeType(DeclarativeBase):
 
     name = Column(Unicode, nullable=False)
     description = Column(Unicode, nullable=True)
+    creatable = Column(Boolean)
 
     icon = Column(Unicode(255), nullable=True)
 

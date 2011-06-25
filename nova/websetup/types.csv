@@ -1,5 +1,5 @@
 key,name,description,attrs
-'person','Person','An organic, sentient being.','["website","insp-person","location","major"]'
-'place','Place','A location or space','["location","website","dept"]'
-'project','Project','An individual or collaborative enterprise planned and designed to achieve an aim.','["lead-person","location"]'
-'thing','Thing','An inanimate, functional object','["location","dept","website"]'
+'person','Person','An organic, sentient being.','F','["website","insp-person","location","major"]'
+'place','Place','A location or space','T','["location","website","dept"]'
+'project','Project','An individual or collaborative enterprise planned and designed to achieve an aim.','T','["lead-person","location"]'
+'thing','Thing','An inanimate, functional object','T','["location","dept","website"]'
