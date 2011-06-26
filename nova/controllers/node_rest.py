@@ -15,10 +15,14 @@ from tg.controllers import RestController
 from nova.model import DBSession, metadata, Node, NodeType, Vocab
 from sqlalchemy.orm.exc import MultipleResultsFound
 from tw2.qrcode import QRCodeWidget
+from tw2.jqplugins.ui import ButtonWidget
 import markdown
-
+from nova.controllers.json import NodeJsonController
 
 class NodeRestController(RestController):
+
+    json = NodeJsonController()
+
     @expose('nova.templates.node.index')
     def get_one(self, node_name):
         obj = DBSession.query(Node).filter(
@@ -41,6 +45,7 @@ class NodeRestController(RestController):
 
         return dict(page="node.index", node=obj, markdown=markdown, qrcode=qr)
 
+
     @expose('nova.templates.index')
     def get_all(self):
         page = "index"
@@ -48,12 +53,25 @@ class NodeRestController(RestController):
         latest_updates = DBSession.query(Node).order_by('modified desc')
         return dict(page="index", updates=latest_updates.limit(10))
 
+#    @validate({'key':NotEmpty,
+#           'name':NotEmpty,
+#           '_type':NotEmpty}, error_handler=new)
+
     @expose('nova.templates.node.new')
     def new(self, *args, **kw):
-        node_types = DBSession.query(NodeType).filter(NodeType.createable == True)
-        node_attrs = {}
-        for ty in node_types:
-            node_attrs.append(ty.key,
-                DBSession.query(Vocab).filter(Vocab.key.in_(ty.req_attrs)))
+        class GotoReqButton(ButtonWidget):
+            type = 'button'
+            id = "next_button_req"
+            click = "gotoStep('req')"
+            options = {
+                'label' : "Next",
+                'icons' : dict(secondary="ui-icon-triangle-1-e"),
+            }
 
-        return dict(page="node.new", types=node_types, req_attrs=node_attrs)
+        if '_type' in kw:
+            node_type = DBSession.query(NodeType).filter(NodeType.key.like("%%%s%%"%kw['_type'])).one()
+            attrs_list = DBSession.query(Vocab).filter(Vocab.key.in_(node_type.req_attrs)).all()
+
+            return dict(_new=False, values=kw, _type=node_type, attrs_list=attrs_list)
+        else:
+            return dict(_new=True, next_list_button=GotoReqButton())

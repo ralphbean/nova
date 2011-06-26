@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <title>Nova TG2 Refactor Beta</title>
+</head>
+
+<body>
+<div class="new_node_container">
+    <p id="new_node:type">
+        <h1>Create New Node</h1>
+        <h2>Select Node Type:</h2>
+        <ol id="new_node:type:list">
+        </ol>
+        <span style="float:right; clear:both;">${next_list_button.display()}</span>
+    </p>
+
+    <p id="new_node:req">
+
+    </p>
+
+    <p id="new_node:attrs">
+
+    </p>
+</div>
+
+<script>
+$(function() {
+    $.getJSON('${url("/node/json/get_types")}', function(data) {
+        var items = []
+        $.each(data.types, function(key, val) {
+            items.push('<li class="new_node_type" id="' + val.key + '"><img src="/images/types/' + val.icon + '" /><p>'+val.name+'</p></li>');
+        });
+        $("#new_node\\:type\\:list").append(items.join('\n')).selectable();
+    });
+});
+</script>
+</body>
+</html>

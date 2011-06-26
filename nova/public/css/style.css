@@ -327,3 +327,32 @@ vertical-align:bottom;
 font-size:xx-small; 
 vertical-align:top;
 }
+
+#new_node\:type\:list
+{
+    list-style-type: none; 
+    margin: 0; 
+    padding: 0 0 1em 0; 
+    display: block;
+}
+
+#new_node\:type\:list li
+{
+    margin: 3px;
+    padding: 1px;
+    float: left;
+    width: 100px;
+    height: 100%; 
+    font-size: 1.5em;
+    text-align: center;
+}
+#new_node\:type\:list li p
+{
+    margin: 0;
+    text-align: center;
+}
+
+#new_node\:type\:list .ui-selecting { background: #FECA40; }
+#new_node\:type\:list .ui-selected { background: #F39814; color: white; }
+
+

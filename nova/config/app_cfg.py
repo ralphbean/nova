@@ -26,7 +26,7 @@ base_config.package = nova
 
 base_config.use_toscawidgets = False
 base_config.use_toscawidgets2 = True
-
+base_config.include_widgets = ["tw2.jquery", "tw2.jqplugins.ui"]
 #Enable json in expose
 base_config.renderers.append('json')
 #Set the default renderer

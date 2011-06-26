@@ -76,12 +76,13 @@ def bootstrap(command, conf, vars):
         # Import NodeType Tables
         csv_types = csv.reader(open("nova/websetup/types.csv"), quoting=csv.QUOTE_MINIMAL, quotechar="'", doublequote=True)
         csv_types.next()
-        for k, n, d, c, attrs in csv_types:
+        for k, n, d, c, i, attrs in csv_types:
             t = model.NodeType()
             t.key =  k
             t.name = n
             t.description = d
             t.creatable = True if c is "T" else False
+            t.icon = i
             dec_attrs = loads(attrs)
             for attr in dec_attrs:
                 try:
