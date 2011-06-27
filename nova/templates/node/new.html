@@ -12,22 +12,73 @@
 </head>
 
 <body>
-<div class="new_node_container">
-    <p id="new_node:type">
-        <h1>Create New Node</h1>
+
+<div id="new_node" class="wizard">
+    <h1>Create New Node</h1>
+
+    <div id="new_node:type" class="wizard-step">
         <h2>Select Node Type:</h2>
-        <ol id="new_node:type:list">
+        <ol id="new_node:sel_type">
         </ol>
         <span style="float:right; clear:both;">${next_list_button.display()}</span>
-    </p>
+    </div>
 
-    <p id="new_node:req">
+    <div id="new_node:req" class="wizard-step">
+        <div style="width: 100%">
+            <div style="display: block; float: left; width: 75%;">
+                <h2>Required Attributes:</h2>
+                    <form style="clear:both;">
+                        <table>
+                            <tr>
+                                <th>Name:</th>
+                                <td><input id="new_node:req:name" class="ui-corner-all ui-widget-content" type="text" name="name" /></td>
+                            </tr>
+                            <tr>
+                                <th>Key:</th>
+                                <td><input id="new_node:req:key" class="ui-corner-all ui-widget-content" type="text" name="key" />
+                                    <div id="new_node:req:key:error" class="form_error">
+                                        <span style="float:left;margin-right: 0.25em;" class="ui-icon ui-icon-check form_error_icon" />
+                                        <span class="form_error_text">This key is available.</span>
+                                    </div>
+                                    <script>
+                                    $("#new_node\\:req\\:name").bind('keyup', function() {
+                                        $(this).data("edited", "true");
+                                        if ($(this).val() == "")
+                                        {
+                                            $(this).removeData("edited");
+                                            $("#new_node\\:req\\:key").removeData("edited");
+                                        }
+                                        if ($("#new_node\\:req\\:key").data("edited") === undefined)
+                                        {
+                                            $("#new_node\\:req\\:key").val(slugify($(this).val()));
+                                            validate_key();
+                                        }
+                                    });
 
-    </p>
+                                    $("#new_node\\:req\\:key").bind('keyup', function() {
+                                        $(this).data("edited", "true");
+                                        if ($(this).val() == "")
+                                        {
+                                            $(this).removeData("edited");
+                                        }
+                                        validate_key();
+                                    });
+                                    </script>
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+            </div>
+            <div style="float:right; width: 25%;">
+                <img id="new_node:req:img" style="float:right; display:block;" />
+            </div>
+        </div>
+        <span style="float:right; clear:both;">${next_req_button.display()}</span><span style="float:right;">${prev_req_button.display()}</span>
+    </div>
 
-    <p id="new_node:attrs">
+    <div id="new_node:attrs" class="wizard-step">
 
-    </p>
+    </div>
 </div>
 
 <script>
@@ -35,10 +86,30 @@ $(function() {
     $.getJSON('${url("/node/json/get_types")}', function(data) {
         var items = []
         $.each(data.types, function(key, val) {
-            items.push('<li class="new_node_type" id="' + val.key + '"><img src="/images/types/' + val.icon + '" /><p>'+val.name+'</p></li>');
+            $('<li class="new_node_type" id="' + val.key + 
+                    '"><img src="/images/types/' + val.icon + 
+                    '" title="'+ val.description +
+                    '" /><p>'+val.name+'</p></li>').click(function() {
+                        toggle_option("new_node\\:sel_type", val.key);
+                }).appendTo("#new_node\\:sel_type");
         });
-        $("#new_node\\:type\\:list").append(items.join('\n')).selectable();
     });
+    
+    $("#new_node\\:req").bind("on_step", function() {
+        var selected = $("#new_node\\:sel_type").children(".ui-selected").first();
+        var img = selected.children("img").attr("src");
+        var name_field = $("#new_node\\:req\\:name").first();
+        if (name_field.data("edited") != "true")
+        {
+            name_field.val("New "+selected.children("p").text());
+            name_field.trigger("keyup");
+        }
+        $("#new_node\\:req\\:img").attr("src", img);
+        $.getJSON('${url("/node/json/get_type")}/'+selected.attr("id"), function(data) {
+        });
+    });
+
+    gotoStep("new_node", "type");
 });
 </script>
 </body>

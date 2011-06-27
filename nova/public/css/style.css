@@ -328,16 +328,53 @@ font-size:xx-small;
 vertical-align:top;
 }
 
-#new_node\:type\:list
+.wizard h2
+{
+    margin: 0 0 2em 0;
+}
+
+.wizard .wizard-step
+{
+    margin: 0 2em 2em 2em;
+    display: block;
+    overflow: auto;
+    clear: both;
+}
+
+.wizard .wizard-step form
+{
+    margin: 0 0 0 1em;
+}
+
+.wizard .wizard-step th, input
+{
+    font-size: 2em !important;
+}
+
+.wizard .wizard-step .form-error
+{
+    margin-top: 0.5em;
+}
+
+.wizard .wizard-step th
+{
+    padding-right: 1em;
+    vertical-align: top;
+    text-align: right;
+}
+
+#new_node\:sel_type
 {
     list-style-type: none; 
     margin: 0; 
     padding: 0 0 1em 0; 
     display: block;
+    overflow: auto;
 }
 
-#new_node\:type\:list li
+#new_node\:sel_type li
 {
+    display: block;
     margin: 3px;
     padding: 1px;
     float: left;
@@ -346,13 +383,14 @@ vertical-align:top;
     font-size: 1.5em;
     text-align: center;
 }
-#new_node\:type\:list li p
+#new_node\:sel_type li p
 {
+    display:block;
     margin: 0;
     text-align: center;
 }
 
-#new_node\:type\:list .ui-selecting { background: #FECA40; }
-#new_node\:type\:list .ui-selected { background: #F39814; color: white; }
+#new_node\:sel_type .ui-selecting { background: #FECA40; }
+#new_node\:sel_type .ui-selected { background: #F39814; color: white; }
 
 

@@ -18,6 +18,8 @@ from tw2.qrcode import QRCodeWidget
 from tw2.jqplugins.ui import ButtonWidget
 import markdown
 from nova.controllers.json import NodeJsonController
+import tw2.forms
+import tw2.core
 
 class NodeRestController(RestController):
 
@@ -53,25 +55,41 @@ class NodeRestController(RestController):
         latest_updates = DBSession.query(Node).order_by('modified desc')
         return dict(page="index", updates=latest_updates.limit(10))
 
-#    @validate({'key':NotEmpty,
-#           'name':NotEmpty,
-#           '_type':NotEmpty}, error_handler=new)
 
     @expose('nova.templates.node.new')
     def new(self, *args, **kw):
-        class GotoReqButton(ButtonWidget):
+        class NextListButton(ButtonWidget):
             type = 'button'
-            id = "next_button_req"
-            click = "gotoStep('req')"
+            id = "next_button_list"
+            click = "function(){gotoStep('new_node', 'req');}"
             options = {
                 'label' : "Next",
                 'icons' : dict(secondary="ui-icon-triangle-1-e"),
             }
 
-        if '_type' in kw:
-            node_type = DBSession.query(NodeType).filter(NodeType.key.like("%%%s%%"%kw['_type'])).one()
-            attrs_list = DBSession.query(Vocab).filter(Vocab.key.in_(node_type.req_attrs)).all()
+        class PrevReqButton(ButtonWidget):
+            type = 'button'
+            id = "prev_button_req"
+            click = "function(){gotoStep('new_node', 'type');}"
+            options = {
+                'label' : "Previous",
+                'icons' : dict(primary="ui-icon-triangle-1-w"),
+            }
 
-            return dict(_new=False, values=kw, _type=node_type, attrs_list=attrs_list)
-        else:
-            return dict(_new=True, next_list_button=GotoReqButton())
+
+        class NextReqButton(ButtonWidget):
+            type = 'button'
+            id = "next_button_req"
+            click = "function(){gotoStep('new_node', 'attrs');}"
+            options = {
+                'label' : "Next",
+                'icons' : dict(secondary="ui-icon-triangle-1-e"),
+            }
+
+
+        return dict(_new=True, 
+            next_list_button=NextListButton(),
+
+            prev_req_button=PrevReqButton(),
+            next_req_button=NextReqButton(),
+            )

@@ -2,7 +2,7 @@ key,name,description,default,resolve
 'dept','Department','The department on campus you belong to.','',F
 'website','Website','Your personal website.','',F
 'insp-person','Inspired to join by','The person that inspired you to join us.','',T
-'location','Location','The %s''s location (Office, Maker Space, etc).','',F
+'location','Location','The {0}''s location (Office, Maker Space, etc).','',F
 'major','Major','Your current major.','',F
-'lead-person','Lead Person','The leader of the %s.','',T
+'lead-person','Lead Person','The leader of the {0}.','',T
 'event-date','Event Date','Date the event will occur','',F
