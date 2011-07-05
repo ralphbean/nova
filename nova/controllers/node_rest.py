@@ -20,6 +20,7 @@ import markdown
 from nova.controllers.json import NodeJsonController
 import tw2.forms
 import tw2.core
+from tw2.jqplugins.markitup import MarkItUpWidget
 
 class NodeRestController(RestController):
 
@@ -61,7 +62,7 @@ class NodeRestController(RestController):
         class NextListButton(ButtonWidget):
             type = 'button'
             id = "next_button_list"
-            click = "function(){gotoStep('new_node', 'req');}"
+            events = { 'click' : "function(){gotoStep('new_node', 'req');}"}
             options = {
                 'label' : "Next",
                 'icons' : dict(secondary="ui-icon-triangle-1-e"),
@@ -70,7 +71,7 @@ class NodeRestController(RestController):
         class PrevReqButton(ButtonWidget):
             type = 'button'
             id = "prev_button_req"
-            click = "function(){gotoStep('new_node', 'type');}"
+            events = {'click': "function(){gotoStep('new_node', 'type');}"}
             options = {
                 'label' : "Previous",
                 'icons' : dict(primary="ui-icon-triangle-1-w"),
@@ -80,16 +81,21 @@ class NodeRestController(RestController):
         class NextReqButton(ButtonWidget):
             type = 'button'
             id = "next_button_req"
-            click = "function(){gotoStep('new_node', 'attrs');}"
+            events = {'click':"function(){gotoStep('new_node', 'attrs');}"}
             options = {
                 'label' : "Next",
                 'icons' : dict(secondary="ui-icon-triangle-1-e"),
             }
 
+        class DescriptionWidget(MarkItUpWidget):
+            id = "description_miu"
+            skin = "simple"
+            options = {'previewTemplatePath': '/tw2_controllers/template_preview'}
 
         return dict(_new=True, 
             next_list_button=NextListButton(),
-
+            desc_widget=DescriptionWidget(),
             prev_req_button=PrevReqButton(),
             next_req_button=NextReqButton(),
             )
+

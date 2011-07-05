@@ -36,24 +36,36 @@ function slugify(text) {
 }
 
 function validate_key() {
-    $.getJSON('/node/json/check_name/'+$("#new_node\\:req\\:key").val(), function(data) {
+    var val = $("#new_node\\:req\\:key").val();
     var key_error = $("#new_node\\:req\\:key\\:error");
-        if (data.exists)
-        {
-           $("#new_node\\:req\\:key").addClass("ui-state-error");
-            key_error.children(".form_error_text").text(
-                "This key is not available. Please fix it!")
-            key_error.children(".form_error_icon").removeClass(
-                "ui-icon-check").addClass("ui-icon-alert");
-        }
-        else
-        {
-            $("#new_node\\:req\\:key").removeClass("ui-state-error");
-            key_error.removeClass("ui-state-error");
-            key_error.children(".form_error_text").text(
-                "This key is available.")
-            key_error.children(".form_error_icon").removeClass(
-                "ui-icon-alert").addClass("ui-icon-check");
-        }
-    });
+    if (val.length >= 3)
+    {
+        $.getJSON('/node/json/check_name/'+val, function(data) {
+            if (data.exists)
+            {
+               $("#new_node\\:req\\:key").addClass("ui-state-error");
+                key_error.children(".form_error_text").text(
+                    "This key is not available. Please fix it!");
+                key_error.children(".form_error_icon").removeClass(
+                    "ui-icon-check").addClass("ui-icon-alert");
+            }
+            else
+            {
+                $("#new_node\\:req\\:key").removeClass("ui-state-error");
+                key_error.removeClass("ui-state-error");
+                key_error.children(".form_error_text").text(
+                    "This key is available.");
+                key_error.children(".form_error_icon").removeClass(
+                    "ui-icon-alert").addClass("ui-icon-check");
+            }
+        });
+    }
+    else
+    {
+        $("#new_node\\:req\\:key").addClass("ui-state-error");
+        key_error.children(".form_error_text").text(
+            "The key must be atleast 3 characters long. Please fix it!");
+        key_error.children(".form_error_icon").removeClass(
+            "ui-icon-check").addClass("ui-icon-alert");
+    }
 }

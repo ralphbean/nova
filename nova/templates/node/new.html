@@ -12,10 +12,9 @@
 </head>
 
 <body>
+<h1>Create New Node<img id="new_node:req:img" style="float:right; display:block;" /></h1>
 
 <div id="new_node" class="wizard">
-    <h1>Create New Node</h1>
-
     <div id="new_node:type" class="wizard-step">
         <h2>Select Node Type:</h2>
         <ol id="new_node:sel_type">
@@ -25,10 +24,10 @@
 
     <div id="new_node:req" class="wizard-step">
         <div style="width: 100%">
-            <div style="display: block; float: left; width: 75%;">
-                <h2>Required Attributes:</h2>
+            <div style="display: block; float: left; width: 100%;">
+                <h2>Basics:</h2>
                     <form style="clear:both;">
-                        <table>
+                        <table style="width: 100%">
                             <tr>
                                 <th>Name:</th>
                                 <td><input id="new_node:req:name" class="ui-corner-all ui-widget-content" type="text" name="name" /></td>
@@ -66,11 +65,12 @@
                                     </script>
                                 </td>
                             </tr>
+                            <tr>
+                                <th>Description:</th>
+                                <td>${desc_widget.display()}</td>
+                            </tr>
                         </table>
                     </form>
-            </div>
-            <div style="float:right; width: 25%;">
-                <img id="new_node:req:img" style="float:right; display:block;" />
             </div>
         </div>
         <span style="float:right; clear:both;">${next_req_button.display()}</span><span style="float:right;">${prev_req_button.display()}</span>

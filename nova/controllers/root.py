@@ -39,10 +39,10 @@ class RootController(BaseController):
     def index(self):
         return redirect('/node')
 
-    @expose()
-    def _lookup(self, node_name, *remainder):
-        nc = NodeEntryController(node_name)
-        return nc, remainder
+#    @expose()
+#    def _lookup(self, node_name, *remainder):
+#        nc = NodeEntryController(node_name)
+#        return nc, remainder
 
 
     @expose('nova.templates.about')

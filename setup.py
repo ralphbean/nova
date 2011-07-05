@@ -37,6 +37,8 @@ setup(
         "tw.forms",
         "markdown",
         "tw2.qrcode",
+        "tw2.jqplugins.ui",
+        "tw2.jqplugins.markitup",
         ],
     setup_requires=["PasteScript >= 1.7"],
     paster_plugins=['PasteScript', 'Pylons', 'TurboGears2'],

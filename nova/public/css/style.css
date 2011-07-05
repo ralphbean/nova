@@ -328,17 +328,25 @@ font-size:xx-small;
 vertical-align:top;
 }
 
+.wizard div
+{
+    display: block;
+}
 .wizard h2
 {
-    margin: 0 0 2em 0;
+    margin: 0 0 0 1em;
+    padding: 0 0 1em 0;
 }
 
 .wizard .wizard-step
 {
-    margin: 0 2em 2em 2em;
+    margin: 0 0 2em 0;
+    padding: 0;
     display: block;
     overflow: auto;
-    clear: both;
+    width: 100%;
+    position: relative;
+    z-index: 2;
 }
 
 .wizard .wizard-step form
@@ -361,6 +369,7 @@ vertical-align:top;
     padding-right: 1em;
     vertical-align: top;
     text-align: right;
+    width: 20%;
 }
 
 #new_node\:sel_type
