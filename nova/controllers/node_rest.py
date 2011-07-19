@@ -62,12 +62,14 @@ class NodeRestController(RestController):
 
     @expose('nova.templates.node.new')
     def new(self, *args, **kw):
-        class NameForm(tw2.forms.TableLayout):
+        class NameForm(tw2.forms.ListLayout):
             class NameField(tw2.forms.TextField):
-                id = 'name'
+                id = 'new_node_name'
+                label = "Name"
 
             class KeyField(tw2.forms.TextField):
-                id = 'key'
+                id = 'new_node_key'
+                label = "Key"
 
         class DescriptionWidget(TinyMCE):
             id = "description_miu"
@@ -77,15 +79,21 @@ class NodeRestController(RestController):
         class TagList(Tagify):
             id = "tag_miu"
 
+        class Submit(tw2.forms.SubmitButton):
+            id = "submit_button"
+            value = "Create!"
+
         return dict(_notags=True,
             name_form=NameForm(submit=None),
             desc_widget=DescriptionWidget(),
             tag_list=TagList(),
+            sub_button=Submit(),
             )
 
-    @validate( {'title':NotEmpty,
-                'key':NotEmpty,
+    @validate( {'new_node_name':NotEmpty,
+                'new_node_key':NotEmpty,
                 'description_miu':MarkupConverter}, error_handler=new)
     @expose()
     def post(self, **kw):
-       pass
+        raise Exception, kw
+        return dict()

@@ -40,14 +40,14 @@ function slugify(text) {
 }
 
 function validate_key() {
-    var val = $("#new_node\\:req\\:key").val();
-    var key_error = $("#new_node\\:req\\:key\\:error");
+    var val = $("#new_node_key").val();
+    var key_error = $("#new_node_key\\:error");
     if (val.length >= 3)
     {
         $.getJSON('/node/json/check_name/'+val, function(data) {
             if (data.exists)
             {
-               $("#new_node\\:req\\:key").addClass("ui-state-error");
+               $("#new_node_key").addClass("ui-state-error");
                 key_error.children(".form_error_text").text(
                     "This key is not available. Please fix it!");
                 key_error.children(".form_error_icon").removeClass(
@@ -55,7 +55,7 @@ function validate_key() {
             }
             else
             {
-                $("#new_node\\:req\\:key").removeClass("ui-state-error");
+                $("#new_node_key").removeClass("ui-state-error");
                 key_error.removeClass("ui-state-error");
                 key_error.children(".form_error_text").text(
                     "This key is available.");
@@ -66,7 +66,7 @@ function validate_key() {
     }
     else
     {
-        $("#new_node\\:req\\:key").addClass("ui-state-error");
+        $("#new_node_key").addClass("ui-state-error");
         key_error.children(".form_error_text").text(
             "The key must be atleast 3 characters long. Please fix it!");
         key_error.children(".form_error_icon").removeClass(

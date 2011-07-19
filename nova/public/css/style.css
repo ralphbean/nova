@@ -393,7 +393,7 @@ font-size:xx-small;
 vertical-align:top;
 }
 
-#new_node\:sel_type
+#new_node_sel_type
 {
     list-style-type: none; 
     margin: 0; 
@@ -403,7 +403,7 @@ vertical-align:top;
     text-align: center;
 }
 
-#new_node\:sel_type li
+#new_node_sel_type li
 {
     display: inline-block;
     margin: 3px;
@@ -413,7 +413,7 @@ vertical-align:top;
     font-size: 1.5em;
     text-align: center;
 }
-#new_node\:sel_type li p
+#new_node_sel_type li p
 {
     display:block;
     margin: 0;
@@ -421,8 +421,8 @@ vertical-align:top;
     text-align: center;
 }
 
-#new_node\:sel_type .ui-selecting { background: #FECA40; }
-#new_node\:sel_type .ui-selected { background: #F39814; color: white; }
+#new_node_sel_type .ui-selecting { background: #FECA40; }
+#new_node_sel_type .ui-selected { background: #F39814; color: white; }
 
 #ui-datepicker-div
 {
@@ -433,3 +433,7 @@ vertical-align:top;
     width: 100%;
 }
 
+.right
+{
+    text-align: right;
+}

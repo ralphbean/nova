@@ -12,6 +12,8 @@
 </head>
 
 <body>
+    <form id="new_node_form" action="/node" method="POST">
+    <input name="sel_type" type="hidden" id="sel_type"/>
     <div class="content-block full">
         <h1>Create a new node</h1>
         <div class="content">
@@ -23,7 +25,7 @@
     <div class="content-block full">
         <h1>1. Select a node type</h1>
         <div class="content">
-            <ol id="new_node:sel_type">
+            <ol id="new_node_sel_type">
             </ol>
             <script>
             $(function() {
@@ -34,8 +36,8 @@
                             '"><img src="/images/types/' + val.icon + 
                             '" title="'+ val.description +
                             '" /><p>'+val.name+'</p></li>').click(function() {
-                                toggle_option("new_node\\:sel_type", val.key);
-                            }).appendTo("#new_node\\:sel_type");
+                                toggle_option("new_node_sel_type", val.key);
+                            }).appendTo("#new_node_sel_type");
                     });
                 });
             });
@@ -43,17 +45,84 @@
         </div>
     </div>
     <div class="clear" />
+
     <div class="content-block part_50">
-        <h1>2. Name</h1>
+        <h1>2. Select a name</h1>
         <div class="content">
             <p>${name_form.display()}</p>
+            <p id="#new_node_key:error"></p>
+            <script>
+                <!--
+                $("#new_node_name").bind('keyup', function() {
+                    $(this).data("edited", "true");
+                    if ($(this).val() == "")
+                    {
+                        $(this).removeData("edited");
+                        $("#new_node_key").removeData("edited");
+                    }
+                    if ($("#new_node_key").data("edited") === undefined)
+                    {
+                        $("#new_node_key").val(slugify($(this).val()));
+                        validate_key();
+                    }
+                });
+
+                $("#new_node_key").bind('keyup', function() {
+                    $(this).data("edited", "true");
+                    if ($(this).val() == "")
+                    {
+                        $(this).removeData("edited");
+                    }
+                    validate_key();
+                });
+                -->
+            </script>
         </div>
     </div>
+
     <div class="content-block part">
-        <h1>3. Tags</h1>
+        <h1>2. Upload a picture</h1>
+        <div class="content">
+            <p>
+                Picture widget here
+            </p>
+        </div>
+    </div>
+
+    <div class="clear" />
+
+    <div class="content-block full">
+        <h1>3. Add a description</h1>
+        <div class="content">
+            <p>
+                ${desc_widget.display()}
+            </p>
+        </div>
+    </div>
+    <div class="clear" />
+
+    <div class="content-block full">
+        <h1>4. Add tags</h1>
         <div class="content">
             <p>${tag_list.display()}</p>
         </div>
     </div>
+    <div class="clear" />
+
+    <div class="content-block full">
+        <div class="content">
+            <p class="right">${sub_button.display()}</p>
+            <script>
+                $(function() {
+                    $("#new_node_form").submit(function(){
+                        alert(selected_type.id);
+                        return false;
+                    });
+                });
+            </script>
+        </div>
+    </div>
+    
+</form>
 </body>
 </html>
