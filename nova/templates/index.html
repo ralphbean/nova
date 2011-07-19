@@ -4,21 +4,57 @@
       xmlns:py="http://genshi.edgewall.org/"
       xmlns:xi="http://www.w3.org/2001/XInclude">
 
-  <xi:include href="master.html" />
+    <xi:include href="master.html" />
 
-<head>
-  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
-  <title>Nova TG2 Refactor Beta</title>
-</head>
+    <head>
+        <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+        <title>Nova TG2 Refactor Beta</title>
+    </head>
 
-<body>
-<h2>Recent Updates:</h2>
-<ol>
-    <li py:for="update in updates">
-        <!-- FAILS HERE: unable to read update object but can read updates -->
-        <a href="/node/${update.key}" title="${update.name}">${update.name}</a> 
-        Last updated: ${update.modified}
-    </li>
-</ol>
-</body>
+    <body>
+        <!--EVENT SLIDESHOW-->
+        <div class="content-block full">
+            <!-- <h1>Upcoming Events</h1> -->
+            <div class="slideshow-widget">
+                <div class="center-wrap">
+                    <img src="${tg.url('/images/frontmatter/300.jpg')}" />
+                </div>
+                <div class="footer">
+                    <h1>Internet Cat Show</h1>
+                    <h2>Monday, June 13th, <a href="#">read more...</a></h2>
+                </div>
+            </div>
+        </div>
+        <div class="clear" />
+        <!--END EVENT SLIDESHOW-->
+
+
+        <!-- RECENT UPDATES -->
+        <div class="content-block part_50">
+            <h1>RECENT UPDATES</h1>
+            <div class="content">
+                <ol>
+                    <li py:for="update in updates">
+                        <a href="/node/${update.key}" title="${update.name}">${update.name}</a> 
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <!-- END RECENT UPDATES -->
+
+        <!-- TAG CLOUD -->
+        <div class="content-block part">
+            <h1>POPULAR TAGS</h1>
+            <div class="content">
+                <ol>
+                    <li py:for="tag in tags">
+                        <a href="${tg.url('/tag/'+tag.name)}" title="${tag.name}">${tag.name}: ${tag.count}</a> 
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <div class="clear" />
+        <!-- END TAG CLOUD -->
+
+    </body>
 </html>

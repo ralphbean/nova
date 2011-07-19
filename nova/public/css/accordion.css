@@ -1,0 +1,177 @@
+/* CSS Document */
+/*
+ * jQuery UI CSS Framework 1.8.14
+ * http://docs.jquery.com/UI/Theming/API
+ */
+
+/* Layout helpers
+----------------------------------*/
+.ui-helper-hidden { 
+	display: none; 
+}
+
+.ui-helper-hidden-accessible { 
+	position: absolute !important; 
+	clip: rect(1px 1px 1px 1px); 
+	clip: rect(1px,1px,1px,1px); 
+}
+
+.ui-helper-reset { 
+	border: 1px; 
+	outline: 0; 
+	line-height: 1.3; 
+	text-decoration: none; 
+	font-size: 1em; 
+	list-style: none; 
+	border-radius: 0px;
+}
+
+.ui-helper-clearfix:after { 
+	content: "."; 
+	display: block; 
+	height: 0; 
+	clear: both; 
+	visibility: hidden; 
+}
+
+.ui-helper-clearfix { 
+	display: inline-block; 
+}
+
+/* required comment for clearfix to work in Opera \*/
+
+* html .ui-helper-clearfix { 
+	height:1%; 
+}
+
+.ui-helper-clearfix { 
+	display:block; 
+}
+
+/* end clearfix */
+
+.ui-helper-zfix { 
+	width: 100%; 
+	height: 100%; 
+	top: 0; 
+	left: 0; 
+	position: absolute; 
+	opacity: 0; 
+	filter:Alpha(Opacity=0); 
+}
+
+/* Interaction Cues
+----------------------------------*/
+.ui-state-disabled { 
+	cursor: default !important; 
+}
+
+/* jQuery UI Accordion 1.8.14 */
+
+.ui-accordion { 
+	width: 100%;
+	border-radius: 0px;
+}
+
+.ui-accordion .ui-accordion-header { 
+	cursor: pointer; 
+	position: relative;
+	margin: 0px;
+}
+
+.ui-accordion .ui-icon
+{
+	display: none;
+}
+
+.ui-accordion .ui-accordion-header-active { 
+	border: 0;
+}
+
+.ui-accordion .ui-accordion-header a { 
+	border: 0;
+	display: block; 
+	font-size: 1em; 
+	padding: .6em .3em .3em .6em; 
+}
+
+.ui-accordion .ui-accordion-content-active { 
+	display: block;
+	text-decoration:none;
+}
+
+/* Component containers
+----------------------------------*/
+#accordion {
+	background-color: #999;
+}
+
+.ui-widget { 
+	font-family: Futura, Helvetica, Arial, sans-serif/*{ffDefault}*/; 
+}
+
+.ui-widget-content { 
+	font-size: .8em; 
+	background: #F2F2F2; 
+	color: #B3B3B3/*{fcContent}*/; 
+	text-decoration: none;
+	padding:.5 0 0 0;
+}
+
+.ui-widget-content a { 
+	color: #B3B3B3/*{fcContent}*/;
+	display:block; 
+	list-style:none;
+	padding: .2 .2 .2 .2;
+	text-decoration: none
+}
+
+.ui-widget-header a { 
+	color: #B3B3B3/*{fcHeader}*/; 
+}
+
+/* Interaction states
+----------------------------------*/
+.ui-widget-content a:hover{ 
+	color: #FFF/*{fcContent}*/;
+	background-color:#B3B3B3;
+}
+
+.ui-widget-content a:active{ 
+	color: #FFF/*{fcContent}*/;
+	background-color:#B3B3B3;
+	padding: 0 0 0 0; 
+}
+
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default { 
+	border: 0/*{borderColorDefault}*/; 
+	background: #F2F2F2/*{bgColorDefault}*/; 
+	font-weight: normal/*{fwDefault}*/; 
+	color: #B3B3B3/*{fcDefault}*/; 
+}
+
+.ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited {/*{Header text bf active}*/ 
+	color: #999999; 
+	text-decoration: none; 
+}
+
+.ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus {/*{Header background Hover nonactive}*/
+	border: 0/*{borderColorHover}*/; 
+	background: #B3B3B3;
+	font-weight: normal/*{fwDefault}*/;  
+}
+
+.ui-state-hover a, .ui-state-hover a:hover {/*{Header text Hover nonactive}*/
+	color: #FFF; 
+	text-decoration: none; 
+}
+
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active { /*{Header text Hover active}*/
+	background: #B3B3B3; 
+	font-weight: normal/*{fwDefault}*/;  
+}
+
+.ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited { /*{Header text Hover active}*/
+	color: #FFF/*{fcActive}*/; 
+	text-decoration: none; 
+}

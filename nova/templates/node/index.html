@@ -19,7 +19,7 @@
 
 <div style="float:left;">
 <h1 style="margin-top:0;">${node.name}<span class="subscript">${node.node_type.name}</span></h1>
-<p>${ Markup( markdown.markdown( node.description, safe_mode="replace" ) ) }</p>
+<p>${ Markup(node.description) }</p>
 
 <h2>Attributes:</h2>
 <ul>
@@ -34,7 +34,10 @@
     </li>
     </py:for>
 </ul>
-${node.watching}
+<h1>Tags</h1>
+<ul py:if="hasattr(node, 'tags')">
+    <li py:for="tag in node.tags">${tag.name}</li>
+</ul>
 <h2>Revisions:</h2>
 <ol>
     <li py:for="update in node.revisions">

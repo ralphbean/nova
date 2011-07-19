@@ -32,7 +32,7 @@ setup(
         "repoze.who-friendlyform >= 1.0.4",
         "repoze.what-pylons >= 1.0",
         "repoze.what.plugins.sql",
-        "repoze.who == 1.0.18",
+        "repoze.who >= 1.0.18",
         "tgext.admin >= 0.3.9",
         "tw.forms",
         "markdown",

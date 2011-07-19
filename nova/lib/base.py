@@ -7,7 +7,7 @@ from tg.render import render
 from tg import request
 from pylons.i18n import _, ungettext, N_
 import nova.model as model
-from tw2.jqplugins.ui import jquery_ui
+import tw2.jqplugins.ui as jqui
 from tw2.core import JSLink
 
 __all__ = ['BaseController']
@@ -28,7 +28,8 @@ class BaseController(TGController):
         # the request is routed to. This routing information is
         # available in environ['pylons.routes_dict']
         JSLink(link="/javascript/master.js").req().prepare()
-        jquery_ui.req().prepare()
+        jqui.set_ui_theme_name('smoothness')
+        jqui.jquery_ui.req().prepare()
         request.identity = request.environ.get('repoze.who.identity')
         tmpl_context.identity = request.identity
         return TGController.__call__(self, environ, start_response)

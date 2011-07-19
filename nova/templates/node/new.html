@@ -8,109 +8,52 @@
 
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
-  <title>Nova TG2 Refactor Beta</title>
+  <title>Nova - Create a new node</title>
 </head>
 
 <body>
-<h1>Create New Node<img id="new_node:req:img" style="float:right; display:block;" /></h1>
-
-<div id="new_node" class="wizard">
-    <div id="new_node:type" class="wizard-step">
-        <h2>Select Node Type:</h2>
-        <ol id="new_node:sel_type">
-        </ol>
-        <span style="float:right; clear:both;">${next_list_button.display()}</span>
-    </div>
-
-    <div id="new_node:req" class="wizard-step">
-        <div style="width: 100%">
-            <div style="display: block; float: left; width: 100%;">
-                <h2>Basics:</h2>
-                    <form style="clear:both;">
-                        <table style="width: 100%">
-                            <tr>
-                                <th>Name:</th>
-                                <td><input id="new_node:req:name" class="ui-corner-all ui-widget-content" type="text" name="name" /></td>
-                            </tr>
-                            <tr>
-                                <th>Key:</th>
-                                <td><input id="new_node:req:key" class="ui-corner-all ui-widget-content" type="text" name="key" />
-                                    <div id="new_node:req:key:error" class="form_error">
-                                        <span style="float:left;margin-right: 0.25em;" class="ui-icon ui-icon-check form_error_icon" />
-                                        <span class="form_error_text">This key is available.</span>
-                                    </div>
-                                    <script>
-                                    $("#new_node\\:req\\:name").bind('keyup', function() {
-                                        $(this).data("edited", "true");
-                                        if ($(this).val() == "")
-                                        {
-                                            $(this).removeData("edited");
-                                            $("#new_node\\:req\\:key").removeData("edited");
-                                        }
-                                        if ($("#new_node\\:req\\:key").data("edited") === undefined)
-                                        {
-                                            $("#new_node\\:req\\:key").val(slugify($(this).val()));
-                                            validate_key();
-                                        }
-                                    });
-
-                                    $("#new_node\\:req\\:key").bind('keyup', function() {
-                                        $(this).data("edited", "true");
-                                        if ($(this).val() == "")
-                                        {
-                                            $(this).removeData("edited");
-                                        }
-                                        validate_key();
-                                    });
-                                    </script>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Description:</th>
-                                <td>${desc_widget.display()}</td>
-                            </tr>
-                        </table>
-                    </form>
-            </div>
+    <div class="content-block full">
+        <h1>Create a new node</h1>
+        <div class="content">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dapibus purus ut tortor rhoncus at dictum risus adipiscing. Integer in sagittis nibh. Phasellus lacus mi, varius sit amet luctus in, gravida quis mauris. Nulla ligula libero, tincidunt at convallis vel, ultricies eget purus. Sed sit amet purus vel nisl semper semper. Ut porta, leo a commodo feugiat, justo dolor luctus leo, pulvinar vehicula dui enim non tortor. Proin sollicitudin mi sed nisl commodo eleifend. Proin nec elit ante, non porttitor lorem. Vestibulum cursus ultricies risus, eu bibendum est imperdiet sit amet. Phasellus porttitor, sem cursus molestie imperdiet, massa felis convallis lacus, eget fringilla mauris arcu eget tortor. Nullam non ligula elit, ut rhoncus elit. 
+            </p>
         </div>
-        <span style="float:right; clear:both;">${next_req_button.display()}</span><span style="float:right;">${prev_req_button.display()}</span>
     </div>
-
-    <div id="new_node:attrs" class="wizard-step">
-
+    <div class="clear" />
+    <div class="content-block full">
+        <h1>1. Select a node type</h1>
+        <div class="content">
+            <ol id="new_node:sel_type">
+            </ol>
+            <script>
+            $(function() {
+                $.getJSON('${url("/node/json/get_types")}', function(data) {
+                    var items = []
+                    $.each(data.types, function(key, val) {
+                        $('<li class="new_node_type" id="' + val.key + 
+                            '"><img src="/images/types/' + val.icon + 
+                            '" title="'+ val.description +
+                            '" /><p>'+val.name+'</p></li>').click(function() {
+                                toggle_option("new_node\\:sel_type", val.key);
+                            }).appendTo("#new_node\\:sel_type");
+                    });
+                });
+            });
+            </script>
+        </div>
     </div>
-</div>
-
-<script>
-$(function() {
-    $.getJSON('${url("/node/json/get_types")}', function(data) {
-        var items = []
-        $.each(data.types, function(key, val) {
-            $('<li class="new_node_type" id="' + val.key + 
-                    '"><img src="/images/types/' + val.icon + 
-                    '" title="'+ val.description +
-                    '" /><p>'+val.name+'</p></li>').click(function() {
-                        toggle_option("new_node\\:sel_type", val.key);
-                }).appendTo("#new_node\\:sel_type");
-        });
-    });
-    
-    $("#new_node\\:req").bind("on_step", function() {
-        var selected = $("#new_node\\:sel_type").children(".ui-selected").first();
-        var img = selected.children("img").attr("src");
-        var name_field = $("#new_node\\:req\\:name").first();
-        if (name_field.data("edited") != "true")
-        {
-            name_field.val("New "+selected.children("p").text());
-            name_field.trigger("keyup");
-        }
-        $("#new_node\\:req\\:img").attr("src", img);
-        $.getJSON('${url("/node/json/get_type")}/'+selected.attr("id"), function(data) {
-        });
-    });
-
-    gotoStep("new_node", "type");
-});
-</script>
+    <div class="clear" />
+    <div class="content-block part_50">
+        <h1>2. Name</h1>
+        <div class="content">
+            <p>${name_form.display()}</p>
+        </div>
+    </div>
+    <div class="content-block part">
+        <h1>3. Tags</h1>
+        <div class="content">
+            <p>${tag_list.display()}</p>
+        </div>
+    </div>
 </body>
 </html>

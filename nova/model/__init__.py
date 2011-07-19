@@ -60,4 +60,4 @@ def init_model(engine):
 
 # Import your model modules here.
 from nova.model.auth import User, Group, Permission
-from nova.model.node import Node, NodeType, NodeRevision, Vocab
+from nova.model.node import Node, NodeType, NodeRevision, Vocab, Tag

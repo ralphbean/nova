@@ -1,6 +1,10 @@
+var wizardError = 0;
 function gotoStep(ref, step, old_step) 
 {
+    wizardError = 0;
     $("#"+ref+"\\:"+step).trigger("pre_on_step");
+    if (wizardError != 0)
+    {return};
 
     if (!(old_step === undefined))
     {

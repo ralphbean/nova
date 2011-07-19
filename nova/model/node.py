@@ -25,6 +25,12 @@ node_editor_table = Table('nodeeditor_tg_user', metadata,
     Column('user_id', Integer, ForeignKey('tg_user.user_id',
         onupdate="CASCADE", ondelete="CASCADE"), primary_key=True))
 
+node_tag_table = Table('node_tag', metadata,
+    Column('node_id', String(36), ForeignKey('node_model.id',
+        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True),
+    Column('tag_name', Unicode, ForeignKey('tags.name',
+        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True))
+
 class Vocab(DeclarativeBase):
     '''An object defining an node attribute'''
     __tablename__ = 'vocab_model'
@@ -86,13 +92,26 @@ class Node(DeclarativeBase):
     modified = Column(DateTime, nullable=False, default=datetime.now)
     created = Column(DateTime, nullable=False, default=datetime.now)
 
-    tags = Column(PickleType(pickler=json), nullable=True)
+    tags = relationship("Tag", backref="nodes", secondary=node_tag_table, uselist=True)
 
     revisions = relationship("NodeRevision", backref="node")
 
     editors = relationship('User', backref="editing", secondary=node_editor_table, uselist=True)
 
     #}
+
+class Tag(DeclarativeBase):
+    __tablename__ = "tags"
+
+    name = Column(Unicode, primary_key=True)
+
+    @property
+    def count(self):
+        if not hasattr(self, "_count"):
+            n_list = node_tag_table.count(node_tag_table.c.tag_name==str(self.name))
+            self._count =  len(DBSession.execute(n_list).fetchall()) 
+        return self._count
+
 
 class NodeWatch(DeclarativeBase):
     __tablename__ = "node_watch"
