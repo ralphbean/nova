@@ -62,14 +62,17 @@ class NodeRestController(RestController):
 
     @expose('nova.templates.node.new')
     def new(self, *args, **kw):
-        class NameForm(tw2.forms.ListLayout):
-            class NameField(tw2.forms.TextField):
-                id = 'new_node_name'
-                label = "Name"
-
-            class KeyField(tw2.forms.TextField):
-                id = 'new_node_key'
-                label = "Key"
+        class NameForm(tw2.forms.TableLayout):
+            children = [tw2.forms.TextField(
+                            id = 'new_node_name',
+                            label = "Name",
+                            css_class = "ui-corner-all ui-widget-content",),
+                        tw2.forms.Spacer(),
+                        tw2.forms.TextField(
+                            id = 'new_node_key',
+                            label = "Key",
+                            css_class = "ui-corner-all ui-widget-content",),
+                        ]
 
         class DescriptionWidget(TinyMCE):
             id = "description_miu"

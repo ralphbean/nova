@@ -4,14 +4,16 @@
 	clear: both;
 }
 
-body {
-        background-image: url('../images/background.png');
-        background-repeat: repeat-x;
+body
+{
+    background-image: url('../images/background.png');
+    background-repeat: repeat-x;
 	font-family: Verdana, Arial, sans-serif;
 	font-size: 1em;
 }
 
-h1 {
+h1 
+{
 	font-family:Futura, Arial, Helvetica, sans-serif;
 	font-size:18px;
 	font-weight:normal;
@@ -22,10 +24,11 @@ h1 {
 	width: 100%;
 }
 
-.master-wrapper {
+.master-wrapper
+{
 	width: 85%;
-        margin-left: auto;
-        margin-right: auto;
+    margin-left: auto;
+    margin-right: auto;
 	overflow: auto;
 	display: block;
 }
@@ -174,6 +177,11 @@ div.breadcrumb
 .content-block .content
 {
 	padding: 0.25em;
+}
+
+.content-block .content table
+{
+    width: inherit;
 }
 
 .content-block .content p
@@ -437,3 +445,21 @@ vertical-align:top;
 {
     text-align: right;
 }
+
+#node_name_block input
+{
+    font-size: 150%;
+    margin-left: 1em;
+    width: 90%;
+}
+
+#node_name_block table
+{
+    margin: 0.5em;
+}
+
+#node_name_block th
+{
+    text-align: right;
+}
+

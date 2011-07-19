@@ -25,6 +25,7 @@ function toggle_option(ref, option)
         $("#"+ref).children().removeClass("ui-selected");
     }
     $("#"+ref).children("#"+option).addClass("ui-selected");
+    $("#sel_type").val(option);
 }
 
 /**
@@ -41,7 +42,8 @@ function slugify(text) {
 
 function validate_key() {
     var val = $("#new_node_key").val();
-    var key_error = $("#new_node_key\\:error");
+    var key_error = $("#new_node_key_error");
+
     if (val.length >= 3)
     {
         $.getJSON('/node/json/check_name/'+val, function(data) {

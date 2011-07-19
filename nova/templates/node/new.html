@@ -46,11 +46,11 @@
     </div>
     <div class="clear" />
 
-    <div class="content-block part_50">
+    <div id="node_name_block" class="content-block part_50">
         <h1>2. Select a name</h1>
         <div class="content">
-            <p>${name_form.display()}</p>
-            <p id="#new_node_key:error"></p>
+            ${name_form.display()}
+            <div id="#new_node_key_error"></div>
             <script>
                 <!--
                 $("#new_node_name").bind('keyup', function() {
@@ -114,9 +114,13 @@
             <p class="right">${sub_button.display()}</p>
             <script>
                 $(function() {
-                    $("#new_node_form").submit(function(){
-                        alert(selected_type.id);
-                        return false;
+                    $("#new_node_form").submit(function() {
+                        if (($("#new_node_name").val() == "") || ($("#new_node_type").val() == ""))
+                        {
+                            
+                        }
+
+                        return true;
                     });
                 });
             </script>
