@@ -47,7 +47,7 @@ class NodeJsonController(BaseController):
                     name = a.name,
                     description = a.description.format(t.name),
                     default_val = a.default,
-                    auto_complete_node = a.resolve))
+                    get_widget = a.resolve))
 
         data = dict(
                 key = t.key,

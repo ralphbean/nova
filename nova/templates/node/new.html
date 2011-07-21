@@ -35,9 +35,8 @@
                         $('<li class="new_node_type" id="' + val.key + 
                             '"><img src="/images/types/' + val.icon + 
                             '" title="'+ val.description +
-                            '" /><p>'+val.name+'</p></li>').click(function() {
-                                toggle_option("new_node_sel_type", val.key);
-                            }).appendTo("#new_node_sel_type");
+                            '" /><p>'+val.name+'</p></li>').click(onNewNodeTypeClick
+                            ).appendTo("#new_node_sel_type");
                     });
                 });
             });
@@ -88,6 +87,13 @@
             </p>
         </div>
     </div>
+    
+    <div class="clear" />
+        <div id="polymap">
+            <script>
+                $("#polymap").load("/widgets/polymap");
+            </script>
+        </div>
 
     <div class="clear" />
 
@@ -126,7 +132,7 @@
             </script>
         </div>
     </div>
-    
+    <div id="additional-widgets" /> 
 </form>
 </body>
 </html>

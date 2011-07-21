@@ -13,6 +13,7 @@ from nova.controllers.secure import SecureController
 from nova.controllers.error import ErrorController
 from nova.controllers.node import NodeEntryController
 from nova.controllers.node_rest import NodeRestController
+from nova.controllers.widgets import WidgetController
 
 __all__ = ['RootController']
 
@@ -34,7 +35,9 @@ class RootController(BaseController):
     secc = SecureController()
     error = ErrorController()
     node = NodeRestController()
-    
+    widgets = WidgetController()
+
+
     @expose('nova.templates.index')
     def index(self):
         return redirect('/node')

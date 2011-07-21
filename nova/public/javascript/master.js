@@ -1,23 +1,3 @@
-var wizardError = 0;
-function gotoStep(ref, step, old_step) 
-{
-    wizardError = 0;
-    $("#"+ref+"\\:"+step).trigger("pre_on_step");
-    if (wizardError != 0)
-    {return};
-
-    if (!(old_step === undefined))
-    {
-        $("#"+ref+"\\:"+old_step).css("display", "none");
-    }
-    else
-    {
-        $("#"+ref).children("div").css("display", "none");
-    }
-
-    $("#"+ref+"\\:"+step).css("display", "block").trigger("on_step");
-}
-
 function toggle_option(ref, option)
 {
     if (!(option === undefined))
@@ -74,4 +54,14 @@ function validate_key() {
         key_error.children(".form_error_icon").removeClass(
             "ui-icon-check").addClass("ui-icon-alert");
     }
+}
+
+function onNewNodeTypeClick() 
+{
+    toggle_option("new_node_sel_type", $(this).attr('id'));
+    $.getJSON('/node/json/get_type/'+$(this).attr('id'), function (data) {
+        $.each(data['req_attrs'], function(i, value) {
+            
+        });
+    });
 }
