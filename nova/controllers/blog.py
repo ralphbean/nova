@@ -36,9 +36,9 @@ class BlogRestController(RestController):
                 Node.key.like("%%%%%")).one()
 
         tags = DBSession.query(Tag).all()
-        return dict(tags=tags, node=obj)
+        return dict(tags=tags, blog=obj)
 
-    @expose('nova.templates.node.blog.index')
+    @expose('nova.templates.node.blog.index_all')
     def get_all(self, *args, **kw):
         # must be the index
         latest_updates = DBSession.query(BlogPost).filter(BlogPost.node==self.node).order_by('modified desc')

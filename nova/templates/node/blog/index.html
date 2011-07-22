@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <title>Nova TG2 Refactor Beta</title>
+</head>
+
+<body>
+<div class="container" style="clear:both; padding-top:1em;">
+
+<div style="float:left;">
+<h1 style="margin-top:0;">${blog.name}</h1>
+<p>${ Markup(post.description) }</p>
+
+<h1>Tags</h1>
+<ul py:if="hasattr(node, 'tags')">
+    <li py:for="tag in node.tags">${tag.name}</li>
+</ul>
+<p class="guid">GUID: ${blog.id}</p>
+</div>
+</div>
+</body>
+</html>
