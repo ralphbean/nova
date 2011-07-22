@@ -22,27 +22,31 @@ from tw2.tinymce import TinyMCE, MarkupConverter
 from formencode.validators import NotEmpty, Regex
 from tw2.jqplugins.tagify import Tagify
 
+
 class BlogRestController(RestController):
     def __init__(self, *args, **kw):
         self.node_name = request.path.split('/')[-2]
         self.node = DBSession.query(Node).filter(
                 Node.key.like("%%%s%%" % self.node_name)).one()
 
+
     @expose('nova.templates.node.blog.index')
-    def get_one(self, *args, **kw):
+    def get_one(self, name, *args, **kw):
         raise Exception, kw
         # TODO
         obj = DBSession.query(BlogPost).filter(
-                Node.key.like("%%%%%")).one()
+                Node.key.like("%%%s%%" % name)).one()
 
         tags = DBSession.query(Tag).all()
-        return dict(tags=tags, blog=obj)
+        return dict(tags=tags, blog=obj, node=self.node)
+
 
     @expose('nova.templates.node.blog.index_all')
     def get_all(self, *args, **kw):
         # must be the index
         latest_updates = DBSession.query(BlogPost).filter(BlogPost.node==self.node).order_by('modified desc')
-        return dict(updates=latest_updates.limit(10))
+        return dict(node=self.node,updates=latest_updates.limit(10))
+
 
     @expose('nova.templates.node.blog.new')
     @require(predicates.not_anonymous(msg='Only logged in users can create blog posts'))
@@ -52,9 +56,16 @@ class BlogRestController(RestController):
             raise Exception, kw
 
         class BlogPostForm(tw2.forms.TableLayout):
+            class NameField(tw2.forms.TextField):
+                id = "post_name"
+                label = "Title"
             
+            class KeyField(tw2.forms.TextField):
+                id = "post_slug"
+                label = "Key"
+    
             class DescriptionWidget(TinyMCE):
-                id = "description_miu"
+                id = "content_miu"
                 rows = 20
                 cols = 80
 
@@ -68,8 +79,9 @@ class BlogRestController(RestController):
         return dict(_notags=True,
             )
 
-    @validate( {'new_blog_name': NotEmpty,
-                'new_blog_key': Regex(regex='^[\w\-.]+$'), #need a DB validator here
+
+    @validate( {'post_name': NotEmpty,
+                'post_slug': Regex(regex='^[\w\-.]+$'), #need a DB validator here
                 'content_miu': MarkupConverter}, error_handler=new)
     @expose()
     @require(predicates.not_anonymous(msg='Only logged in users can create blog posts'))
@@ -101,4 +113,4 @@ class BlogRestController(RestController):
         DBSession.add(n)
         transaction.commit()
 
-        redirect("./"+kw['new_blog_key'])
+        redirect("./"+kw['post_slug'])
