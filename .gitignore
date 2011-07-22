@@ -4,3 +4,5 @@
 *.egg-info
 *~
 *.swp
+build
+template_raw

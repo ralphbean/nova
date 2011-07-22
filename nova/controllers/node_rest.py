@@ -4,21 +4,33 @@
 # turbogears imports
 from tg import expose, url
 from tg import redirect, validate, flash
+from tg import require
 
 # third party imports
 #from pylons.i18n import ugettext as _
-#from repoze.what import predicates
+from repoze.what import predicates
 
 # project specific imports
 from nova.lib.base import BaseController
 from tg.controllers import RestController
-from nova.model import DBSession, metadata, Node, NodeType, Vocab
-from sqlalchemy.orm.exc import MultipleResultsFound
+from nova.model import DBSession, metadata, Node, NodeType, Vocab, Tag
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from tw2.qrcode import QRCodeWidget
-import markdown
-
+from tw2.jqplugins.ui import ButtonWidget
+from nova.controllers.json import NodeJsonController
+from nova.controllers.blog import BlogRestController
+import tw2.forms
+import tw2.core
+from tw2.tinymce import TinyMCE, MarkupConverter
+from formencode.validators import NotEmpty, Regex
+from tw2.jqplugins.tagify import Tagify
 
 class NodeRestController(RestController):
+
+    json = NodeJsonController()
+
+    blog = BlogRestController()
+
     @expose('nova.templates.node.index')
     def get_one(self, node_name):
         obj = DBSession.query(Node).filter(
@@ -38,22 +50,95 @@ class NodeRestController(RestController):
                 obj.attrs[attr] = t_obj
 
             obj.attrs[attr] = {'data': obj.attrs[attr], 'vocab': v}
+        tags = DBSession.query(Tag).all()
+        return dict(page="node.index", tags=tags, node=obj, qrcode=qr)
 
-        return dict(page="node.index", node=obj, markdown=markdown, qrcode=qr)
 
     @expose('nova.templates.index')
     def get_all(self):
         page = "index"
         # must be the index
         latest_updates = DBSession.query(Node).order_by('modified desc')
-        return dict(page="index", updates=latest_updates.limit(10))
+        tags = DBSession.query(Tag).all()
+        return dict(page="index", updates=latest_updates.limit(10), tags=tags)
+
 
     @expose('nova.templates.node.new')
+    @require(predicates.not_anonymous(msg='Only logged in users can create nodes'))
     def new(self, *args, **kw):
-        node_types = DBSession.query(NodeType).filter(NodeType.createable == True)
-        node_attrs = {}
-        for ty in node_types:
-            node_attrs.append(ty.key,
-                DBSession.query(Vocab).filter(Vocab.key.in_(ty.req_attrs)))
+        if len(kw) > 0:
+            # TODO: if args came back, then validation failed. Need to restore all options here
+            raise Exception, kw
 
-        return dict(page="node.new", types=node_types, req_attrs=node_attrs)
+        class NameForm(tw2.forms.TableLayout):
+            children = [tw2.forms.TextField(
+                            id = 'new_node_name',
+                            label = "Name",
+                            css_class = "ui-corner-all ui-widget-content",),
+                        tw2.forms.Spacer(),
+                        tw2.forms.TextField(
+                            id = 'new_node_key',
+                            label = "Key",
+                            css_class = "ui-corner-all ui-widget-content",),
+                        ]
+
+        class DescriptionWidget(TinyMCE):
+            id = "description_miu"
+            rows = 20
+            cols = 80
+
+        class TagList(Tagify):
+            id = "tag_miu"
+
+        class Submit(tw2.forms.SubmitButton):
+            id = "submit_button"
+            value = "Create!"
+
+        return dict(_notags=True,
+            name_form=NameForm(submit=None),
+            desc_widget=DescriptionWidget(),
+            tag_list=TagList(),
+            sub_button=Submit(),
+            )
+
+    @validate( {'new_node_name': NotEmpty,
+                'sel_type': NotEmpty, # need better validator here
+                'new_node_key': Regex(regex='^[\w\-.]+$'), #need a DB validator here
+                'description_miu': MarkupConverter}, error_handler=new)
+    @expose()
+    @require(predicates.not_anonymous(msg='Only logged in users can create nodes'))
+    def post(self, **kw):
+        attrs_list = dict((k[5-len(k):], v) for k, v in kw.iteritems() if k[0:5] == u'attr:')
+        tags = filter((lambda x: len(x) > 0), kw['tag_miu'].split(','))
+        for i, tag in enumerate(tags):
+            tags[i] = tag.strip()
+        
+        tags = [x for x in tags if len(x) is not 0]
+        # Triple distilled tags
+
+        n_type = DBSession.query(NodeType).filter(NodeType.key==kw['sel_type'].encode()).one()
+
+        n = Node()
+        n.node_type = n_type
+        n.name = kw['new_node_name']
+        n.key = kw['new_node_key']
+        n.description = kw['description_miu']
+        
+        from tg import request
+        user = request.identity
+        n.owner = user['user']
+        n.attrs = attrs_list
+        for tag in tags:
+            try:
+                t_obj = DBSession.query(Tag).filter(Tag.name==tag).one()
+            except NoResultFound:
+                t_obj = Tag(name=tag)
+
+            n.tags.append(t_obj)
+
+        import transaction
+
+        DBSession.add(n)
+        transaction.commit()
+
+        redirect("./node/"+kw['new_node_key'])
