@@ -40,6 +40,8 @@ setup(
         "tw2.jqplugins.ui",
         "tw2.tinymce",
         "tw2.jqplugins.tagify",
+        'tw2.polymaps',
+        'tw2.duckpunch',
         ],
     setup_requires=["PasteScript >= 1.7"],
     paster_plugins=['PasteScript', 'Pylons', 'TurboGears2'],

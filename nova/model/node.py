@@ -75,7 +75,7 @@ class Node(DeclarativeBase):
     
     id = Column(String(36), primary_key=True, default=lambda : str(uuid4()))
 
-    node_type_id = Column(Integer, ForeignKey('nodetype_model.id'))
+    node_type_id = Column(Integer, ForeignKey('nodetype_model.id'), nullable=False)
     node_type = relationship("NodeType")
 
     name = Column(Unicode, nullable=False)
@@ -106,6 +106,7 @@ class Tag(DeclarativeBase):
     name = Column(Unicode, primary_key=True)
 
     @property
+    # TODO: SLOPPY
     def count(self):
         if not hasattr(self, "_count"):
             n_list = node_tag_table.count(node_tag_table.c.tag_name==str(self.name))

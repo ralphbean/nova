@@ -20,13 +20,14 @@ function slugify(text) {
     return text;
 }
 
+var _key_avail;
 function validate_key() {
     var val = $("#new_node_key").val();
     var key_error = $("#new_node_key_error");
 
     if (val.length >= 3)
     {
-        $.getJSON('/node/json/check_name/'+val, function(data) {
+        var ret_code = $.getJSON('/node/json/check_name/'+val, function(data) {
             if (data.exists)
             {
                $("#new_node_key").addClass("ui-state-error");
@@ -34,6 +35,7 @@ function validate_key() {
                     "This key is not available. Please fix it!");
                 key_error.children(".form_error_icon").removeClass(
                     "ui-icon-check").addClass("ui-icon-alert");
+                _key_avail = false;
             }
             else
             {
@@ -43,8 +45,10 @@ function validate_key() {
                     "This key is available.");
                 key_error.children(".form_error_icon").removeClass(
                     "ui-icon-alert").addClass("ui-icon-check");
+                _key_avail = true;
             }
         });
+        return _key_avail;
     }
     else
     {
@@ -53,6 +57,8 @@ function validate_key() {
             "The key must be atleast 3 characters long. Please fix it!");
         key_error.children(".form_error_icon").removeClass(
             "ui-icon-check").addClass("ui-icon-alert");
+
+        return false;
     }
 }
 
@@ -60,8 +66,11 @@ function onNewNodeTypeClick()
 {
     toggle_option("new_node_sel_type", $(this).attr('id'));
     $.getJSON('/node/json/get_type/'+$(this).attr('id'), function (data) {
-        $.each(data['req_attrs'], function(i, value) {
-            
+        var w_loc = $("#additional-widgets");
+        w_loc.empty();
+        $.each(data.type['req_attrs'], function(i, value) {
+            var w = $("<div></div>").load("/widgets/"+value['key'], {'name':value["key"]});
+            w_loc.append(w);
         });
     });
 }

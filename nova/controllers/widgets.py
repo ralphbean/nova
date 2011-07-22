@@ -20,31 +20,44 @@ import tw2.forms
 import tw2.duckpunch
 
 def BasicInputWidget(**kw):
-    class TextFieldPunch(tw2.duckpunch.Duckpunch):
-        class TextField(tw2.forms.TextField):
-            name = kw['name'] if 'name' in kw else 'textfield'
-            initial_value = kw['initial'] if 'initial' in kw else ''
-
-    return TextFieldPunch()
+    return tw2.duckpunch.Duckpunch(
+        children=[tw2.forms.TableLayout(id='attr',
+                children =[tw2.forms.TextField(
+                    id = kw['name'] if 'name' in kw else 'textfield',
+                    initial_value = kw['initial'] if 'initial' in kw else '',
+                    label = kw['label'] if 'label' in kw else 'Text Field',
+                    css_class = "ui-corner-all ui-widget-content",)
+                    ]
+            )]
+        )
 
 def PolyMapWidget(**kw):
     class PolyMapPunch(tw2.duckpunch.Duckpunch):
         class PMap(tw2.polymaps.PolyMap):
             id = kw['name'] if 'name' in kw else 'polymap'
-            interact = True
+            interact = False
             # You should get your own one of these at http://cloudmade.com/register
             cloudmade_api_key = "1a1b06b230af4efdbb989ea99e9841af"
             # To style the map tiles
-            cloudmade_tileset = 'midnight-commander'
+            cloudmade_tileset = 'pale-dawn'
             # Both specify the css_class AND include your own custom css file that
             # specifies what it looks like.
-
+        class LocPoint(tw2.forms.HiddenField):
+            name = "attr:"+kw['name'] if 'name' in kw else 'textfield'
+            initial_value = kw['initial'] if 'initial' in kw else ''
     return PolyMapPunch()
 
+
 class WidgetPuncher(object):
-    @expose()
+
+    @expose('nova.templates.widgets.full')
     def default(self, *args, **kw):
-        return ""
+        try:
+            obj = DBSession.query(Vocab).filter(Vocab.key==args[0]).one()
+        except:
+            return ""
+        kw['label'] = obj.name
+        return dict(title=obj.name, desc=obj.description, w=BasicInputWidget(**kw), additional="_50")
 
     @expose('nova.templates.widgets.full')
     def location(self, **kw):
@@ -56,6 +69,7 @@ class WidgetPuncher(object):
         return dict(title="PolyMap PunchTest", w=PolyMapWidget(**kw))
 
 widget_puncher = WidgetPuncher()
+
 
 class WidgetController(BaseController):
 

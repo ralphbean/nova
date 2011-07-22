@@ -446,7 +446,7 @@ vertical-align:top;
     text-align: right;
 }
 
-#node_name_block input
+.content-block input
 {
     font-size: 150%;
     margin-left: 1em;

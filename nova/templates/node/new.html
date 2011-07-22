@@ -87,14 +87,6 @@
             </p>
         </div>
     </div>
-    
-    <div class="clear" />
-        <div id="polymap">
-            <script>
-                $("#polymap").load("/widgets/polymap");
-            </script>
-        </div>
-
     <div class="clear" />
 
     <div class="content-block full">
@@ -108,7 +100,15 @@
     <div class="clear" />
 
     <div class="content-block full">
-        <h1>4. Add tags</h1>
+        <h1>4. Additional Properties</h1>
+        <div class="content">
+            <div id="additional-widgets" />
+        </div>
+    </div>
+    <div class="clear" />
+
+    <div class="content-block full">
+        <h1>5. Add tags</h1>
         <div class="content">
             <p>${tag_list.display()}</p>
         </div>
@@ -121,18 +121,15 @@
             <script>
                 $(function() {
                     $("#new_node_form").submit(function() {
-                        if (($("#new_node_name").val() == "") || ($("#new_node_type").val() == ""))
-                        {
-                            
-                        }
+                        var tags = $("#${tag_list.id}").tagify('serialize');
+                        $("#${tag_list.id}").val(tags);
 
-                        return true;
+                        return validate_key();
                     });
                 });
             </script>
         </div>
     </div>
-    <div id="additional-widgets" /> 
 </form>
 </body>
 </html>

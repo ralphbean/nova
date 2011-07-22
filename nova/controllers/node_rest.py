@@ -4,29 +4,32 @@
 # turbogears imports
 from tg import expose, url
 from tg import redirect, validate, flash
+from tg import require
 
 # third party imports
 #from pylons.i18n import ugettext as _
-#from repoze.what import predicates
+from repoze.what import predicates
 
 # project specific imports
 from nova.lib.base import BaseController
 from tg.controllers import RestController
 from nova.model import DBSession, metadata, Node, NodeType, Vocab, Tag
-from sqlalchemy.orm.exc import MultipleResultsFound
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from tw2.qrcode import QRCodeWidget
 from tw2.jqplugins.ui import ButtonWidget
-import markdown
 from nova.controllers.json import NodeJsonController
+from nova.controllers.blog import BlogRestController
 import tw2.forms
 import tw2.core
 from tw2.tinymce import TinyMCE, MarkupConverter
-from formencode.validators import NotEmpty
+from formencode.validators import NotEmpty, Regex
 from tw2.jqplugins.tagify import Tagify
 
 class NodeRestController(RestController):
 
     json = NodeJsonController()
+
+    blog = BlogRestController()
 
     @expose('nova.templates.node.index')
     def get_one(self, node_name):
@@ -48,7 +51,7 @@ class NodeRestController(RestController):
 
             obj.attrs[attr] = {'data': obj.attrs[attr], 'vocab': v}
         tags = DBSession.query(Tag).all()
-        return dict(page="node.index", tags=tags, node=obj, markdown=markdown, qrcode=qr)
+        return dict(page="node.index", tags=tags, node=obj, qrcode=qr)
 
 
     @expose('nova.templates.index')
@@ -61,7 +64,12 @@ class NodeRestController(RestController):
 
 
     @expose('nova.templates.node.new')
+    @require(predicates.not_anonymous(msg='Only logged in users can create nodes'))
     def new(self, *args, **kw):
+        if len(kw) > 0:
+            # TODO: if args came back, then validation failed. Need to restore all options here
+            raise Exception, kw
+
         class NameForm(tw2.forms.TableLayout):
             children = [tw2.forms.TextField(
                             id = 'new_node_name',
@@ -93,10 +101,44 @@ class NodeRestController(RestController):
             sub_button=Submit(),
             )
 
-    @validate( {'new_node_name':NotEmpty,
-                'new_node_key':NotEmpty,
-                'description_miu':MarkupConverter}, error_handler=new)
+    @validate( {'new_node_name': NotEmpty,
+                'sel_type': NotEmpty, # need better validator here
+                'new_node_key': Regex(regex='^[\w\-.]+$'), #need a DB validator here
+                'description_miu': MarkupConverter}, error_handler=new)
     @expose()
+    @require(predicates.not_anonymous(msg='Only logged in users can create nodes'))
     def post(self, **kw):
-        raise Exception, kw
-        return dict()
+        attrs_list = dict((k[5-len(k):], v) for k, v in kw.iteritems() if k[0:5] == u'attr:')
+        tags = filter((lambda x: len(x) > 0), kw['tag_miu'].split(','))
+        for i, tag in enumerate(tags):
+            tags[i] = tag.strip()
+        
+        tags = [x for x in tags if len(x) is not 0]
+        # Triple distilled tags
+
+        n_type = DBSession.query(NodeType).filter(NodeType.key==kw['sel_type'].encode()).one()
+
+        n = Node()
+        n.node_type = n_type
+        n.name = kw['new_node_name']
+        n.key = kw['new_node_key']
+        n.description = kw['description_miu']
+        
+        from tg import request
+        user = request.identity
+        n.owner = user['user']
+        n.attrs = attrs_list
+        for tag in tags:
+            try:
+                t_obj = DBSession.query(Tag).filter(Tag.name==tag).one()
+            except NoResultFound:
+                t_obj = Tag(name=tag)
+
+            n.tags.append(t_obj)
+
+        import transaction
+
+        DBSession.add(n)
+        transaction.commit()
+
+        redirect("./node/"+kw['new_node_key'])

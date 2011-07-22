@@ -56,7 +56,7 @@ class NodeJsonController(BaseController):
                 icon = t.icon,
                 req_attrs = attrs)
 
-        return {t.key : data}
+        return {'type' : data}
 
     @expose('json')
     def check_name(self, key=None):
