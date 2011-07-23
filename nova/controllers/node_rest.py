@@ -29,7 +29,7 @@ class NodeRestController(RestController):
 
     json = NodeJsonController()
 
-    blog = BlogRestController()
+    blog =  BlogRestController()
 
     @expose('nova.templates.node.index')
     def get_one(self, node_name):
@@ -51,16 +51,15 @@ class NodeRestController(RestController):
 
             obj.attrs[attr] = {'data': obj.attrs[attr], 'vocab': v}
         tags = DBSession.query(Tag).all()
-        return dict(page="node.index", tags=tags, node=obj, qrcode=qr)
+        return dict(tags=tags, node=obj, qrcode=qr)
 
 
     @expose('nova.templates.index')
-    def get_all(self):
-        page = "index"
+    def get_all(self, *args, **kw):
         # must be the index
         latest_updates = DBSession.query(Node).order_by('modified desc')
         tags = DBSession.query(Tag).all()
-        return dict(page="index", updates=latest_updates.limit(10), tags=tags)
+        return dict(updates=latest_updates.limit(10), tags=tags)
 
 
     @expose('nova.templates.node.new')

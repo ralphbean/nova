@@ -21,31 +21,31 @@ import tw2.core
 from tw2.tinymce import TinyMCE, MarkupConverter
 from formencode.validators import NotEmpty, Regex
 from tw2.jqplugins.tagify import Tagify
+from nova.tw2.forms import NovaFormLayout
 
 
 class BlogRestController(RestController):
-    def __init__(self, *args, **kw):
-        self.node_name = request.path.split('/')[-2]
-        self.node = DBSession.query(Node).filter(
-                Node.key.like("%%%s%%" % self.node_name)).one()
-
-
     @expose('nova.templates.node.blog.index')
     def get_one(self, name, *args, **kw):
-        raise Exception, kw
+        node_name = request.path.split('/')[2]
+        node = DBSession.query(Node).filter(Node.key.like("%%%s%%" % node_name)).one()
+        
         # TODO
-        obj = DBSession.query(BlogPost).filter(
-                Node.key.like("%%%s%%" % name)).one()
+        obj = DBSession.query(BlogPost).filter(BlogPost.node==node).filter(
+                BlogPost.key.like("%%%s%%" % name)).one()
 
         tags = DBSession.query(Tag).all()
-        return dict(tags=tags, blog=obj, node=self.node)
+        return dict(node=node, tags=tags, blog=obj)
 
 
     @expose('nova.templates.node.blog.index_all')
     def get_all(self, *args, **kw):
         # must be the index
-        latest_updates = DBSession.query(BlogPost).filter(BlogPost.node==self.node).order_by('modified desc')
-        return dict(node=self.node,updates=latest_updates.limit(10))
+        node_name = request.path.split('/')[2]
+        node = DBSession.query(Node).filter(Node.key.like("%%%s%%" % node_name)).one()
+
+        latest_posts = DBSession.query(BlogPost).filter(BlogPost.node==node).order_by('modified desc')
+        return dict(node=node,updates=latest_posts)
 
 
     @expose('nova.templates.node.blog.new')
@@ -55,10 +55,11 @@ class BlogRestController(RestController):
             # TODO: if args came back, then validation failed. Need to restore all options here
             raise Exception, kw
 
-        class BlogPostForm(tw2.forms.TableLayout):
+        class BlogPostForm(NovaFormLayout):
             class NameField(tw2.forms.TextField):
                 id = "post_name"
                 label = "Title"
+                part = "65"
             
             class KeyField(tw2.forms.TextField):
                 id = "post_slug"
@@ -66,17 +67,20 @@ class BlogRestController(RestController):
     
             class DescriptionWidget(TinyMCE):
                 id = "content_miu"
+                label = "Content"
                 rows = 20
                 cols = 80
 
             class TagList(Tagify):
+                label = "Tags"
                 id = "tag_miu"
 
             class Submit(tw2.forms.SubmitButton):
                 id = "submit_button"
+                label = "Create!"
                 value = "Create!"
 
-        return dict(_notags=True,
+        return dict(_notags=True,form=BlogPostForm()
             )
 
 
@@ -86,6 +90,7 @@ class BlogRestController(RestController):
     @expose()
     @require(predicates.not_anonymous(msg='Only logged in users can create blog posts'))
     def post(self, **kw):
+        raise Exception, kw
         tags = filter((lambda x: len(x) > 0), kw['tag_miu'].split(','))
         for i, tag in enumerate(tags):
             tags[i] = tag.strip()
