@@ -62,3 +62,4 @@ def init_model(engine):
 from nova.model.auth import User, Group, Permission
 from nova.model.node import Node, NodeType, Revision, Vocab, Tag
 from nova.model.blog import BlogPost
+from nova.model.images import ImageFile

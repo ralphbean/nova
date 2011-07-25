@@ -11,9 +11,9 @@ from nova import model
 from nova.controllers.secure import SecureController
 
 from nova.controllers.error import ErrorController
-from nova.controllers.node import NodeEntryController
 from nova.controllers.node_rest import NodeRestController
 from nova.controllers.widgets import WidgetController
+from nova.controllers.images import ImageRestController
 
 __all__ = ['RootController']
 
@@ -36,7 +36,7 @@ class RootController(BaseController):
     error = ErrorController()
     node = NodeRestController()
     widgets = WidgetController()
-
+    imgsrv = ImageRestController()
 
     @expose('nova.templates.index')
     def index(self):
