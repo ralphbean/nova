@@ -16,11 +16,11 @@
 
 <div style="float:left;">
 <h1 style="margin-top:0;">${blog.name}</h1>
-<p>${ Markup(post.description) }</p>
+<p>${ Markup(blog.content) }</p>
 
 <h1>Tags</h1>
-<ul py:if="hasattr(node, 'tags')">
-    <li py:for="tag in node.tags">${tag.name}</li>
+<ul py:if="hasattr(blog, 'tags')">
+    <li py:for="tag in blog.tags">${tag.name}</li>
 </ul>
 <p class="guid">GUID: ${blog.id}</p>
 </div>

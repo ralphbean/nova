@@ -13,7 +13,7 @@ from repoze.what import predicates
 # project specific imports
 from nova.lib.base import BaseController
 from tg.controllers import RestController
-from nova.model import DBSession, metadata, Node, NodeType, Vocab, Tag
+from nova.model import DBSession, metadata, Node, NodeType, Vocab, Tag, Revision
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from tw2.qrcode import QRCodeWidget
 from tw2.jqplugins.ui import ButtonWidget
@@ -51,7 +51,10 @@ class NodeRestController(RestController):
 
             obj.attrs[attr] = {'data': obj.attrs[attr], 'vocab': v}
         tags = DBSession.query(Tag).all()
-        return dict(tags=tags, node=obj, qrcode=qr)
+
+        revisions = DBSession.query(Revision).filter(Revision.item_id==obj.id).order_by('modified desc')
+
+        return dict(tags=tags, node=obj, qrcode=qr, revisions=revisions)
 
 
     @expose('nova.templates.index')
@@ -107,6 +110,8 @@ class NodeRestController(RestController):
     @expose()
     @require(predicates.not_anonymous(msg='Only logged in users can create nodes'))
     def post(self, **kw):
+        from tg import request # HACK: Don't know why i need this here but i do
+
         attrs_list = dict((k[5-len(k):], v) for k, v in kw.iteritems() if k[0:5] == u'attr:')
         tags = filter((lambda x: len(x) > 0), kw['tag_miu'].split(','))
         for i, tag in enumerate(tags):
@@ -121,9 +126,8 @@ class NodeRestController(RestController):
         n.node_type = n_type
         n.name = kw['new_node_name']
         n.key = kw['new_node_key']
-        n.description = kw['description_miu']
+        n.content = kw['description_miu']
         
-        from tg import request
         user = request.identity
         n.owner = user['user']
         n.attrs = attrs_list
@@ -135,9 +139,6 @@ class NodeRestController(RestController):
 
             n.tags.append(t_obj)
 
-        import transaction
-
-        DBSession.add(n)
-        transaction.commit()
+        revise_and_commit(n, user) # This is where the magic happens
 
         redirect("./node/"+kw['new_node_key'])

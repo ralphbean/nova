@@ -87,14 +87,14 @@ class Node(DeclarativeBase):
     picture = Column(Unicode, nullable=True)
     attrs = Column(PickleType(pickler=json), nullable=True)
 
-    description = Column(Unicode, nullable=True)
+    content = Column(Unicode, nullable=True)
 
     modified = Column(DateTime, nullable=False, default=datetime.now)
     created = Column(DateTime, nullable=False, default=datetime.now)
 
     tags = relationship("Tag", backref="nodes", secondary=node_tag_table, uselist=True)
 
-    revisions = relationship("NodeRevision", backref="node")
+    #revisions = relationship("Revision", backref="node")
 
     editors = relationship('User', backref="editing", secondary=node_editor_table, uselist=True)
 
@@ -124,7 +124,7 @@ class NodeWatch(DeclarativeBase):
     watched = relationship("Node", backref="watched_by",  primaryjoin=(Node.id == watched_id))
 
 
-class NodeRevision(DeclarativeBase):
+class Revision(DeclarativeBase):
     '''An object containing information about a modification done to a node'''
     __tablename__ = 'revision_model'
     
@@ -132,9 +132,13 @@ class NodeRevision(DeclarativeBase):
 
     id = Column(String(36), primary_key=True, default=lambda : str(uuid4()))
 
-    node_id = Column(Integer, ForeignKey('node_model.id'))
+    item_id = Column(String(36), nullable=False)
     
-    description = Column(Unicode(255), nullable=False)
+    title = Column(Unicode(255), nullable=False)
+
+    content = Column(Unicode)
+
+    diff_cache = Column(Unicode)
 
     modified = Column(DateTime, nullable=False, default=datetime.now)
 

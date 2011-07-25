@@ -13,5 +13,8 @@
 
     <body>
         all blog items here for ${node.name}
+        <ul>
+            <li py:for="p in updates">${p.key}</li>
+        </ul>
     </body>
 </html>
