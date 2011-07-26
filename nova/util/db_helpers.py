@@ -1,5 +1,5 @@
 import re
-from nova.model import DBSession, Node, BlogPost, Revision
+from nova.model import DBSession, Node, BlogPost, Revision, ImageFile
 from unicodedata import normalize
 from nova.util.htmldiff import text_diff
 
@@ -26,6 +26,20 @@ def gen_key_node(name):
         pass # we want this to happen
 
     return key
+
+def gen_key_image(name):
+    base_key = slugify(name)
+    key = base_key
+    i = 1
+    try:
+        while DBSession.query(ImageFile).filter(ImageFile.key.like("%%%s%%" % key)).one():
+            key = u'%s_%i' % (base_key, i)
+            i = i + 1
+    except:
+        pass # we want this to happen
+
+    return key
+
 
 def gen_key_blogpost(node, name):
     base_key = slugify(name)

@@ -41,8 +41,8 @@ class ImageRestController(RestController):
 
         class BlogPostForm(NovaFormLayout):
             class NameField(tw2.forms.TextField):
-                id = "post_name"
-                label = "Title"
+                id = "image_name"
+                label = "Image Title"
 
             class FileField(tw2.forms.FileField):
                 id = "image_file"
@@ -57,18 +57,29 @@ class ImageRestController(RestController):
             )
 
 
-    @validate( {'post_name': NotEmpty}, error_handler=new)
+    @validate( {'image_name': NotEmpty}, error_handler=new)
     @expose()
     @require(predicates.not_anonymous(msg='Only logged in users can upload images'))
     def post(self, **kw):
-        raise Exception, kw
         from tg import request # HACK: Real wierd that I need this here. Possible TG2 Bug
 
         img = ImageFile()
 
         user = request.identity['user']
-        b.owner = user
 
-        revise_and_commit(b, user) # This is where the magic happens
+        key = gen_key_image(kw['image_name'])
 
-        redirect("./"+key)
+        img.key = key
+        img.name = kw['image_name']
+
+        base_name, ext = gen_image_cache(kw['image_file'])
+        img.image_path = "%s_o%s" % (base_name, ext)
+        img.id = base_name
+        img.owner = user
+
+        import transaction
+        DBSession.add(img)
+        DBSession.flush()
+        transaction.commit()
+
+        redirect("/images/assets/%s_o%s"%(base_name, ext))
