@@ -56,7 +56,9 @@ setup(
                    ],
     package_data={'nova': ['i18n/*/LC_MESSAGES/*.mo',
                                  'templates/*/*',
-                                 'public/*/*']},
+                                 'public/css/*',
+                                 'public/javascript/*',
+                                 'public/images/*/*']},
     message_extractors={'nova': [
             ('**.py', 'python', None),
             ('templates/**.html', 'genshi', None),

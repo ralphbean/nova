@@ -25,7 +25,7 @@ from nova.tw2.forms import NovaFormLayout
 from nova.util import *
 
 class BlogRestController(RestController):
-    @expose('nova.templates.node.blog.index')
+    @expose('nova.templates.blog.index')
     def get_one(self, name, *args, **kw):
         node_name = request.path.split('/')[2]
         node = DBSession.query(Node).filter(Node.key.like("%%%s%%" % node_name)).one()
@@ -38,7 +38,7 @@ class BlogRestController(RestController):
         return dict(tags=tags, blog=obj)
 
 
-    @expose('nova.templates.node.blog.index_all')
+    @expose('nova.templates.blog.index_all')
     def get_all(self, *args, **kw):
         # must be the index
         node_name = request.path.split('/')[2]
@@ -50,7 +50,7 @@ class BlogRestController(RestController):
         return dict(node=node, updates=latest_posts)
 
 
-    @expose('nova.templates.node.blog.new')
+    @expose('nova.templates.blog.new')
     @require(predicates.not_anonymous(msg='Only logged in users can create blog posts'))
     def new(self, *args, **kw):
         node_name = request.path.split('/')[2]
