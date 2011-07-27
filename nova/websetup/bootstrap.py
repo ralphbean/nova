@@ -105,7 +105,7 @@ def bootstrap(command, conf, vars):
                 node = model.Node()
                 node.key = k
                 node.name = n
-                node.description = d
+                node.content = d
                 node.node_type = (model.DBSession.query(model.NodeType).filter(model.NodeType.key.like("%%%s%%"%t)).one())
                 node.owner = (model.DBSession.query(model.User).filter(model.User.user_name.like("%%%s%%"%o)).one())
                 node.editors.append(node.owner)
@@ -117,13 +117,10 @@ def bootstrap(command, conf, vars):
                     if attr.key not in imp_attrs:
                         imp_attrs[attr.key] = attr.default
                 node.attrs = imp_attrs
-                model.DBSession.add(node)
 
-                rev = model.NodeRevision()
-                rev.node = node
-                rev.description = "Creation, Imported via CSV"
+                from nova.util import revise_and_commit
 
-                model.DBSession.add(rev)
+                revise_and_commit(node)                
 
             except MultipleResultsFound:
                 raise IntegrityError

@@ -42,6 +42,7 @@ setup(
         "tw2.jqplugins.tagify",
         'tw2.polymaps',
         'tw2.duckpunch',
+        'Image',
         ],
     setup_requires=["PasteScript >= 1.7"],
     paster_plugins=['PasteScript', 'Pylons', 'TurboGears2'],
@@ -56,7 +57,9 @@ setup(
                    ],
     package_data={'nova': ['i18n/*/LC_MESSAGES/*.mo',
                                  'templates/*/*',
-                                 'public/*/*']},
+                                 'public/css/*',
+                                 'public/javascript/*',
+                                 'public/images/*/*']},
     message_extractors={'nova': [
             ('**.py', 'python', None),
             ('templates/**.html', 'genshi', None),

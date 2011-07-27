@@ -21,73 +21,94 @@ import tw2.core
 from tw2.tinymce import TinyMCE, MarkupConverter
 from formencode.validators import NotEmpty, Regex
 from tw2.jqplugins.tagify import Tagify
+from nova.tw2.forms import NovaFormLayout
+from nova.util import *
 
 class BlogRestController(RestController):
-    def __init__(self, *args, **kw):
-        self.node_name = request.path.split('/')[-2]
-        self.node = DBSession.query(Node).filter(
-                Node.key.like("%%%s%%" % self.node_name)).one()
-
-    @expose('nova.templates.node.blog.index')
-    def get_one(self, *args, **kw):
-        raise Exception, kw
-        # TODO
+    @expose('nova.templates.blog.index')
+    def get_one(self, name, *args, **kw):
+        node_name = request.path.split('/')[2]
+        node = DBSession.query(Node).filter(Node.key.like("%%%s%%" % node_name)).one()
+        
         obj = DBSession.query(BlogPost).filter(
-                Node.key.like("%%%%%")).one()
+                BlogPost.node==node).filter(
+                BlogPost.key.like("%%%s%%" % name)).one()
 
         tags = DBSession.query(Tag).all()
-        return dict(tags=tags, node=obj)
+        return dict(tags=tags, blog=obj)
 
-    @expose('nova.templates.node.blog.index')
+
+    @expose('nova.templates.blog.index_all')
     def get_all(self, *args, **kw):
         # must be the index
-        latest_updates = DBSession.query(BlogPost).filter(BlogPost.node==self.node).order_by('modified desc')
-        return dict(updates=latest_updates.limit(10))
+        node_name = request.path.split('/')[2]
+        node = DBSession.query(Node).filter(Node.key.like("%%%s%%" % node_name)).one()
 
-    @expose('nova.templates.node.blog.new')
+        latest_posts = DBSession.query(BlogPost).filter(
+                        BlogPost.node==node).order_by('modified desc')
+
+        return dict(node=node, updates=latest_posts)
+
+
+    @expose('nova.templates.blog.new')
     @require(predicates.not_anonymous(msg='Only logged in users can create blog posts'))
     def new(self, *args, **kw):
+        node_name = request.path.split('/')[2]
         if len(kw) > 0:
             # TODO: if args came back, then validation failed. Need to restore all options here
             raise Exception, kw
 
-        class BlogPostForm(tw2.forms.TableLayout):
+        class BlogPostForm(NovaFormLayout):
+            class NameField(tw2.forms.TextField):
+                id = "post_name"
+                label = "Title"
             
             class DescriptionWidget(TinyMCE):
-                id = "description_miu"
+                id = "content_miu"
+                label = "Content"
                 rows = 20
                 cols = 80
 
             class TagList(Tagify):
+                label = "Tags"
                 id = "tag_miu"
 
             class Submit(tw2.forms.SubmitButton):
                 id = "submit_button"
+                label = "Create!"
                 value = "Create!"
 
-        return dict(_notags=True,
+        return dict(_notags=True,form=BlogPostForm()
             )
 
-    @validate( {'new_blog_name': NotEmpty,
-                'new_blog_key': Regex(regex='^[\w\-.]+$'), #need a DB validator here
+
+    @validate( {'post_name': NotEmpty,
+                #'post_slug': Regex(regex='^[\w\-.]+$'), #need a DB validator here
                 'content_miu': MarkupConverter}, error_handler=new)
     @expose()
     @require(predicates.not_anonymous(msg='Only logged in users can create blog posts'))
     def post(self, **kw):
+        from tg import request # HACK: Real wierd that I need this here. Possible TG2 Bug
+        node_name = request.path.split('/')[2]
         tags = filter((lambda x: len(x) > 0), kw['tag_miu'].split(','))
         for i, tag in enumerate(tags):
             tags[i] = tag.strip()
         
         tags = [x for x in tags if len(x) is not 0]
         # Triple distilled tags
+        
+        node = DBSession.query(Node).filter(Node.key.like("%%%s%%" % node_name)).one()
 
         b = BlogPost()
-        # TODO: Fill rest of model
+        key = gen_key_blogpost(node_name, kw['post_name'])
+        b.key = key
+        b.name = kw['post_name']
+        b.content = kw['content_miu']
+        b.node = node
 
-        from tg import request
-        user = request.identity
-        b.owner = user['user']
-        b.attrs = attrs_list
+        user = request.identity['user']
+        b.owner = user
+
         for tag in tags:
             try:
                 t_obj = DBSession.query(Tag).filter(Tag.name==tag).one()
@@ -96,9 +117,6 @@ class BlogRestController(RestController):
 
             b.tags.append(t_obj)
 
-        import transaction
+        revise_and_commit(b, user) # This is where the magic happens
 
-        DBSession.add(n)
-        transaction.commit()
-
-        redirect("./"+kw['new_blog_key'])
+        redirect("./"+key)
