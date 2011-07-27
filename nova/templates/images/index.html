@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <title>Nova TG2 Refactor Beta</title>
+    <script type="text/javascript" src="/javascript/jquery.js"></script>
+    <script type="text/javascript" src="/javascript/jquery.lightbox-0.5.js"></script>
+    <link rel="stylesheet" type="text/css" href="/css/jquery.lightbox-0.5.css" media="screen" />
+</head>
+
+<body>
+    <div class="content-block full">
+        <h1>${user.display_name}'s Pictures</h1>
+        <div class="content">
+            <p>
+            <a href="${tg.url('/imgsrv/new')}" title="Add a new image">
+                Upload a new image...
+            </a>
+            </p>
+            <div id="gallery">
+                <ul>
+                    <li py:for="img in images">
+                        <a href="${tg.url('/imgsrv/'+img.key+'?size=l')}">
+                            <img src="${tg.url('/imgsrv/'+img.key+'?size=m')}" title="${img.name}" />
+                            <p>${img.name}</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    $(function() {
+        $('#gallery a').lightBox();
+    });
+    </script>
+</body>
+</html>

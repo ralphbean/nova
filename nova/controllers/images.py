@@ -21,15 +21,31 @@ import tw2.core
 from formencode.validators import NotEmpty, Regex, FileUploadKeeper
 from nova.tw2.forms import NovaFormLayout
 from nova.util import *
+from os.path import splitext
 
 class ImageRestController(RestController):
     @expose()
-    def get_one(self, name, *args, **kw):
-        return dict()
+    def get_one(self, key, *args, **kw):
+        obj = DBSession.query(ImageFile).filter(ImageFile.key==key).one()
+        base, ext = splitext(obj.image_path)
+        if 'size' in kw:
+            size_mod = kw['size']
+        else:
+            size_mod = 'o'
+    
+        base = base[:-1] + size_mod
 
-    @expose()
+        return redirect("/images/assets/%s%s" % (base, ext))
+
+    @expose('nova.templates.images.index')
+    @require(predicates.not_anonymous(msg='You need to be logged in to view your image catalog'))
     def get_all(self, *args, **kw):
-        redirect("/")
+        from tg import request
+        user = request.identity['user']
+        objs = DBSession.query(ImageFile).filter(ImageFile.owner==user)
+
+        return dict(images=objs, user=user)
+
 
     @expose('nova.templates.images.new')
     @require(predicates.not_anonymous(msg='Only logged in users can create blog posts'))
@@ -82,4 +98,4 @@ class ImageRestController(RestController):
         DBSession.flush()
         transaction.commit()
 
-        redirect("/images/assets/%s_o%s"%(base_name, ext))
+        redirect("/imgsrv")

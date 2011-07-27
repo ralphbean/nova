@@ -496,3 +496,18 @@ vertical-align:top;
     text-align: right;
 }
 
+#gallery li
+{
+    display: inline-block;
+    float:left;
+    padding: 2px;
+    width: 120px;
+    text-align: center;
+}
+
+#gallery li p
+{
+    padding: 0.25em;
+    text-align: center;
+    font-size: 12px;
+}
