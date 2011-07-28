@@ -16,7 +16,6 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 from tw2.qrcode import QRCodeWidget
 from tw2.jqplugins.ui import TabsWidget
 import tw2.jquery
-import markdown
 
 class NodeJsonController(BaseController):
     @expose('json')
