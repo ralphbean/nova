@@ -83,7 +83,14 @@
         <h1>2. Upload a picture</h1>
         <div class="content">
             <p>
-                Picture widget here
+                <a href="${tg.url('imgsrv/new')}">Upload a picture</a>
+                <span id="select-pic-link">Select an already uploaded picture</span>
+                <script>
+                    $("#select-pic-link").button().click(function () {
+                        $("#picture-dialog-form").dialog('open');
+                    });
+                </script>
+                <input type="hidden" id="node_def_images" name="node_def_images"/>
             </p>
         </div>
     </div>
@@ -131,5 +138,50 @@
         </div>
     </div>
 </form>
+
+<div id="picture-dialog-form" title="Select a picture">
+    <p>
+        <ul id="picture-list">
+        </ul>
+    </p>
+</div>
+<script>
+    $( "#picture-dialog-form" ).dialog({
+        autoOpen: false,
+        height: 400,
+        width: 450,
+        modal: true,
+        resizable: false,
+        buttons: {
+            "Select Picture": function() {
+                var sel_pics = $("#picture-list .ui-selected");
+                var d = "";
+                $.each(sel_pics, function(i,v)  {
+                    d = d + ","+v.id;
+                });
+                $("#node_def_images").val(d);
+                $(this).dialog('close');
+            },
+            Cancel: function() {
+                $(this).dialog('close');
+            }
+        },
+        open: function() {
+            var o_click = function() {
+                $(this).toggleClass('ui-selected');
+            }
+            $.getJSON('/node/json/get_images', function(data) {
+                var pic_list = $("#picture-list");
+                pic_list.empty();
+                $.each(data.images, function(i, v) {
+                    var d = '<li id="'+v.key+'" title="'+v.name+'"><img src="/imgsrv/'+v.key+'?size=m" /><p>'+v.name+'</p></li>';
+                    $(d).click(o_click).appendTo(pic_list);
+                });
+            });
+        },
+        close: function() {
+        }
+    });
+</script>
 </body>
 </html>
