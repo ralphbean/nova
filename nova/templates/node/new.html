@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+
+  <xi:include href="master.html" />
+
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
+  <title>Nova - Create a new node</title>
+</head>
+
+<body>
+    <form id="new_node_form" action="/node" method="POST">
+    <input name="sel_type" type="hidden" id="sel_type"/>
+    <div class="content-block full">
+        <h1>Create a new node</h1>
+        <div class="content">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec dapibus purus ut tortor rhoncus at dictum risus adipiscing. Integer in sagittis nibh. Phasellus lacus mi, varius sit amet luctus in, gravida quis mauris. Nulla ligula libero, tincidunt at convallis vel, ultricies eget purus. Sed sit amet purus vel nisl semper semper. Ut porta, leo a commodo feugiat, justo dolor luctus leo, pulvinar vehicula dui enim non tortor. Proin sollicitudin mi sed nisl commodo eleifend. Proin nec elit ante, non porttitor lorem. Vestibulum cursus ultricies risus, eu bibendum est imperdiet sit amet. Phasellus porttitor, sem cursus molestie imperdiet, massa felis convallis lacus, eget fringilla mauris arcu eget tortor. Nullam non ligula elit, ut rhoncus elit. 
+            </p>
+        </div>
+    </div>
+    <div class="clear" />
+    <div class="content-block full">
+        <h1>1. Select a node type</h1>
+        <div class="content">
+            <ol id="new_node_sel_type">
+            </ol>
+            <script>
+            $(function() {
+                $.getJSON('${url("/node/json/get_types")}', function(data) {
+                    var items = []
+                    $.each(data.types, function(key, val) {
+                        $('<li class="new_node_type" id="' + val.key + 
+                            '"><img src="/images/types/' + val.icon + 
+                            '" title="'+ val.description +
+                            '" /><p>'+val.name+'</p></li>').click(onNewNodeTypeClick
+                            ).appendTo("#new_node_sel_type");
+                    });
+                });
+            });
+            </script>
+        </div>
+    </div>
+    <div class="clear" />
+
+    <div id="node_name_block" class="content-block part_50">
+        <h1>2. Select a name</h1>
+        <div class="content">
+            ${name_form.display()}
+            <div id="#new_node_key_error"></div>
+            <script>
+                <!--
+                $("#new_node_name").bind('keyup', function() {
+                    $(this).data("edited", "true");
+                    if ($(this).val() == "")
+                    {
+                        $(this).removeData("edited");
+                        $("#new_node_key").removeData("edited");
+                    }
+                    if ($("#new_node_key").data("edited") === undefined)
+                    {
+                        $("#new_node_key").val(slugify($(this).val()));
+                        validate_key();
+                    }
+                });
+
+                $("#new_node_key").bind('keyup', function() {
+                    $(this).data("edited", "true");
+                    if ($(this).val() == "")
+                    {
+                        $(this).removeData("edited");
+                    }
+                    validate_key();
+                });
+                -->
+            </script>
+        </div>
+    </div>
+
+    <div class="content-block part">
+        <h1>2. Upload a picture</h1>
+        <div class="content">
+            <p>
+                <a href="${tg.url('imgsrv/new')}">Upload a picture</a>
+                <span id="select-pic-link">Select an already uploaded picture</span>
+                <script>
+                    $("#select-pic-link").button().click(function () {
+                        $("#picture-dialog-form").dialog('open');
+                    });
+                </script>
+                <input type="hidden" id="node_def_images" name="node_def_images"/>
+            </p>
+        </div>
+    </div>
+    <div class="clear" />
+
+    <div class="content-block full">
+        <h1>3. Add a description</h1>
+        <div class="content">
+            <p>
+                ${desc_widget.display()}
+            </p>
+        </div>
+    </div>
+    <div class="clear" />
+
+    <div class="content-block full">
+        <h1>4. Additional Properties</h1>
+        <div class="content">
+            <div id="additional-widgets" />
+        </div>
+    </div>
+    <div class="clear" />
+
+    <div class="content-block full">
+        <h1>5. Add tags</h1>
+        <div class="content">
+            <p>${tag_list.display()}</p>
+        </div>
+    </div>
+    <div class="clear" />
+
+    <div class="content-block full">
+        <div class="content">
+            <p class="right">${sub_button.display()}</p>
+            <script>
+                $(function() {
+                    $("#new_node_form").submit(function() {
+                        var tags = $("#${tag_list.id}").tagify('serialize');
+                        $("#${tag_list.id}").val(tags);
+
+                        return validate_key();
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</form>
+
+<div id="picture-dialog-form" title="Select a picture">
+    <p>
+        <ul id="picture-list">
+        </ul>
+    </p>
+</div>
+<script>
+    $( "#picture-dialog-form" ).dialog({
+        autoOpen: false,
+        height: 400,
+        width: 450,
+        modal: true,
+        resizable: false,
+        buttons: {
+            "Select Picture": function() {
+                var sel_pics = $("#picture-list .ui-selected");
+                var d = "";
+                $.each(sel_pics, function(i,v)  {
+                    d = d + ","+v.id;
+                });
+                $("#node_def_images").val(d);
+                $(this).dialog('close');
+            },
+            Cancel: function() {
+                $(this).dialog('close');
+            }
+        },
+        open: function() {
+            var o_click = function() {
+                $(this).toggleClass('ui-selected');
+            }
+            $.getJSON('/node/json/get_images', function(data) {
+                var pic_list = $("#picture-list");
+                pic_list.empty();
+                $.each(data.images, function(i, v) {
+                    var d = '<li id="'+v.key+'" title="'+v.name+'"><img src="/imgsrv/'+v.key+'?size=m" /><p>'+v.name+'</p></li>';
+                    $(d).click(o_click).appendTo(pic_list);
+                });
+            });
+        },
+        close: function() {
+        }
+    });
+</script>
+</body>
+</html>

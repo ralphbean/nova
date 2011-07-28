@@ -12,14 +12,40 @@
 </head>
 
 <body>
-<div class="container" style="clear:both; padding-top:1em;">
-<div style="float:left;width:200px;margin-right:2em;">
-  <img style="float:left;" py:attrs="{'src': node.picture if node.picture is not None else '/images/no_bio_image.gif'}" />
-</div>
+    <div class="content-block full">
+        <h1>${node.node_type.name.upper()}</h1>
+        <div class="content">
+            <img class="head-image" py:attrs="{'src': node.picture if node.picture is not None else '/images/no_bio_image.gif'}" />
+            <div class="inner-content">
+                <h2>${node.name}</h2>
+                ${Markup(node.content)}
+            </div>
+        </div>
+    </div>
 
-<div style="float:left;">
-<h1 style="margin-top:0;">${node.name}<span class="subscript">${node.node_type.name}</span></h1>
-<p>${ Markup( markdown.markdown( node.description, safe_mode="replace" ) ) }</p>
+    <div class="content-block part_50">
+        <h1>BLOG</h1>
+        <div class="content">
+            <ol>
+                <li py:for="post in node.blog_posts">${post.created} | ${post.name}
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="content-block part">
+        <h1>FILES</h1>
+        <div class="content">
+            <p>Not part of Sprint 1</p>
+        </div>
+    </div>
+
+    <div class="content-block full">
+        <h1>FEEDS</h1>
+        <div class="content">
+            <p>Not part of Sprint 1</p>
+        </div>
+    </div>
 
 <h2>Attributes:</h2>
 <ul>
@@ -34,18 +60,21 @@
     </li>
     </py:for>
 </ul>
-${node.watching}
+<h1>Tags</h1>
+<ul py:if="hasattr(node, 'tags')">
+    <li py:for="tag in node.tags">${tag.name}</li>
+</ul>
 <h2>Revisions:</h2>
 <ol>
-    <li py:for="update in node.revisions">
-        ${update.description} on ${update.modified}.
+    <li py:for="update in revisions">
+        ${update.title} on ${update.modified}.
     </li>
 </ol>
 <p class="guid">GUID: ${node.id}</p>
-</div>
+
 <div style="float:right;clear:both;">
 ${qrcode.display()}
 </div>
-</div>
+
 </body>
 </html>
