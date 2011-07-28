@@ -1,5 +1,5 @@
-key,name,description,attrs
-'person','Person','An organic, sentient being.','["website","insp-person","location","major"]'
-'place','Place','A location or space','["location","website","dept"]'
-'project','Project','An individual or collaborative enterprise planned and designed to achieve an aim.','["lead-person","location"]'
-'thing','Thing','An inanimate, functional object','["location","dept","website"]'
+key,name,description,creatable,icon,attrs
+'person','Person','An organic, sentient being.','F','person.png','["website","insp-person","location","major"]'
+'place','Place','A location or space','T','place.png','["location","website","dept"]'
+'project','Project','An individual or collaborative enterprise planned and designed to achieve an aim.','T','project.png','["lead-person","location"]'
+'thing','Thing','An inanimate, functional object','T','thing.png','["location","dept","website"]'

@@ -107,7 +107,8 @@ class User(DeclarativeBase):
 
     user_name = Column(Unicode(16), unique=True, nullable=False)
 
-    email_address = Column(Unicode(255), unique=True, nullable=False,
+    # Unique false because of aghfye@rit.edu. Blame him
+    email_address = Column(Unicode(255), unique=False, nullable=False,
                            info={'rum': {'field':'Email'}})
 
     display_name = Column(Unicode(255))

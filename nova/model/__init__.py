@@ -2,8 +2,8 @@
 """The application's model objects"""
 
 from zope.sqlalchemy import ZopeTransactionExtension
-from sqlalchemy.orm import scoped_session, sessionmaker
-#from sqlalchemy import MetaData
+from sqlalchemy.orm import scoped_session, sessionmaker, mapper
+from sqlalchemy import MetaData, create_engine, Table
 from sqlalchemy.ext.declarative import declarative_base
 
 # Global session manager: DBSession() returns the Thread-local
@@ -29,7 +29,7 @@ metadata = DeclarativeBase.metadata
 
 # If you have multiple databases with overlapping table names, you'll need a
 # metadata for each database. Feel free to rename 'metadata2'.
-#metadata2 = MetaData()
+
 
 #####
 # Generally you will not want to define your table's mappers, and data objects
@@ -41,6 +41,7 @@ metadata = DeclarativeBase.metadata
 def init_model(engine):
     """Call me before using any of the tables or classes in the model."""
     DBSession.configure(bind=engine)
+
     # If you are using reflection to introspect your database and create
     # table objects for you, your tables must be defined and mapped inside
     # the init_model function, so that the engine is available if you
@@ -57,7 +58,8 @@ def init_model(engine):
 
     #mapper(Reflected, t_reflected)
 
-
 # Import your model modules here.
 from nova.model.auth import User, Group, Permission
-from nova.model.node import Node, NodeType, NodeRevision, Vocab
+from nova.model.node import Node, NodeType, Revision, Vocab, Tag
+from nova.model.blog import BlogPost
+from nova.model.images import ImageFile
