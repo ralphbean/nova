@@ -10,11 +10,25 @@ import transaction
 from sqlalchemy.orm import scoped_session, sessionmaker, mapper
 from sqlalchemy import MetaData, create_engine, Table
 from sqlalchemy.ext.declarative import declarative_base
+from nova.util import slugify
+
+def get_id_gen():
+    i = 1
+    while True:
+        yield i
+        i = i + 1
+
+from uuid import uuid4
+
+def get_guid_gen():
+    while True:
+        yield str(uuid4())
+
 
 def bootstrap(command, conf, vars):
     """Place any commands to setup nova here"""
     # <websetup.bootstrap.before.auth
-    from sqlalchemy.orm.exc import MultipleResultsFound
+    from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
     from sqlalchemy.exc import IntegrityError
 #    try:
 #        u = model.User()
@@ -152,17 +166,41 @@ def bootstrap(command, conf, vars):
 
     class auth_user(object):
         pass
-
     t_old_users = Table("auth_user", old_metadata, autoload=True, autoload_with=old_engine)
     mapper(auth_user, t_old_users)
+
+
+    class old_vocab(object):
+        pass
+    t_old_vocab = Table('vocab', old_metadata, autoload=True, autoload_with=old_engine)
+    mapper(old_vocab, t_old_vocab)
+
+
+    class old_node_type(object):
+        pass
+    t_old_nodetype = Table('nodetype', old_metadata, autoload=True, autoload_with=old_engine)
+    mapper(old_node_type, t_old_nodetype)
+
+    
+    class old_node(object):
+        pass
+    t_old_node = Table('node', old_metadata, autoload=True, autoload_with=old_engine)
+    mapper(old_node, t_old_node)
+
+
     old_metadata.reflect(bind=old_engine)
     OldDBSession.configure(bind=old_engine)
+
+    ##### MIGRATE USERS
 
     old_users = t_old_users
     o_users = OldDBSession.query(old_users)
 
+    user_translation = {}
+    g = get_id_gen()
+
     for u in o_users:
-        new_u = model.User()
+        new_u = model.User(user_id=g.next())
         new_u.user_name = u.username
         new_u.password = "password"
         new_u.email_address = u.email
@@ -172,6 +210,106 @@ def bootstrap(command, conf, vars):
 
         model.DBSession.add(new_u)
         model.DBSession.flush()
+
+        user_translation[str(u.id)] = new_u.user_id
+
         transaction.commit()
 
 
+    ##### MIGRATE VOCAB
+    old_vocab = t_old_vocab
+
+    vocab_translation = {}
+
+    o_vocab = OldDBSession.query(old_vocab)
+
+    g = get_id_gen()
+
+    for v in o_vocab:
+        new_v = model.Vocab(id=g.next())
+        new_v.key = slugify(v.value)
+        new_v.name = v.value
+
+        print "Adding vocab: '%s'" % new_v.name
+
+        model.DBSession.add(new_v)
+        model.DBSession.flush()
+
+        vocab_translation[str(v.id)] = new_v.id
+    
+        transaction.commit()
+
+
+    ##### MIGRATE NODETYPES
+    old_nodetypes = t_old_nodetype
+    
+    nodetype_translation = {}
+
+    o_nodetypes = OldDBSession.query(old_nodetypes)
+    
+    g = get_id_gen()
+
+    for t in o_nodetypes:
+        new_t = model.NodeType(id=g.next())
+        new_t.key = slugify(t.value)
+        new_t.name = t.value_node
+        new_t.creatable = (t.public is 'T')
+        
+        old_v = t.required_vocab.encode().split('|')
+        old_v = filter((lambda x: x is not ''), old_v)
+
+        for v in old_v:
+            voc = model.DBSession.query(model.Vocab).filter(model.Vocab.id==vocab_translation[v]).one()
+            new_t.req_attrs.append(voc)
+        
+        model.DBSession.add(new_t)
+        model.DBSession.flush()
+
+        nodetype_translation[str(t.id)] = new_t.id
+
+        transaction.commit()
+
+
+
+    ##### MIGRATE NODES
+    old_nodes = t_old_node
+
+    node_translation = {}
+    o_nodes = OldDBSession.query(old_node)
+
+    g = get_guid_gen()
+
+    for n in o_nodes:
+        new_n = model.Node(id=g.next())
+        new_n.key = slugify(n.url)
+        new_n.name = n.name
+        new_n.node_type = model.DBSession.query(model.NodeType).filter(model.NodeType.id==nodetype_translation[str(n.type)]).one()
+        new_n.content = n.description
+        new_n.owner = model.DBSession.query(model.User).filter(model.User.user_id==user_translation[str(n.modified_by)]).one()
+        new_n.attrs = {}
+
+        if n.tags is not None:
+            old_t = n.tags.encode().split('|')
+            old_t = filter((lambda x: x is not ''), old_t)
+
+            for t in old_t:
+                t = slugify(u'%s'%t)
+
+                try:
+                    t_obj = model.DBSession.query(model.Tag).filter(model.Tag.name==t).one()
+                except NoResultFound:
+                    t_obj = model.Tag(name=t)
+
+                new_n.tags.append(t_obj)
+
+        model.DBSession.add(new_n)
+
+        try:
+            model.DBSession.flush()
+
+            transaction.commit()
+        except IntegrityError:
+            new_n.key = new_n.key + "_"
+
+            model.DBSession.flush()
+            transaction.commit()
