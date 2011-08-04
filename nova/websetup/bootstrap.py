@@ -187,9 +187,25 @@ def bootstrap(command, conf, vars):
     t_old_node = Table('node', old_metadata, autoload=True, autoload_with=old_engine)
     mapper(old_node, t_old_node)
 
+    class old_blog(object):
+        pass
+    t_old_blog = Table('blog', old_metadata, autoload=True, autoload_with=old_engine)
+    mapper(old_blog, t_old_blog)
+
 
     old_metadata.reflect(bind=old_engine)
     OldDBSession.configure(bind=old_engine)
+
+    def tryCommit():
+        try:
+            model.DBSession.flush()
+            transaction.commit()
+            return True
+        except IntegrityError:
+            print "THERE IS A PROBLEM"
+            return False
+
+
 
     ##### MIGRATE USERS
 
@@ -288,6 +304,8 @@ def bootstrap(command, conf, vars):
         new_n.owner = model.DBSession.query(model.User).filter(model.User.user_id==user_translation[str(n.modified_by)]).one()
         new_n.attrs = {}
 
+        node_translation[str(n.id)] = new_n.id
+
         if n.tags is not None:
             old_t = n.tags.encode().split('|')
             old_t = filter((lambda x: x is not ''), old_t)
@@ -304,12 +322,45 @@ def bootstrap(command, conf, vars):
 
         model.DBSession.add(new_n)
 
-        try:
-            model.DBSession.flush()
+        while not tryCommit():
+            new_n.key = new_n.key + u"_"
 
-            transaction.commit()
-        except IntegrityError:
-            new_n.key = new_n.key + "_"
 
-            model.DBSession.flush()
-            transaction.commit()
+    ##### MIGRATE BLOGS
+
+    old_blogs = t_old_blog
+
+    blog_translation = {}
+    o_posts = OldDBSession.query(old_blogs)
+
+    g = get_guid_gen()
+    for p in o_posts:
+        new_b = model.BlogPost(id=g.next())
+
+        new_b.name = p.title
+        new_b.content = p.body
+        new_b.owner_id = user_translation[str(p.author)]
+        new_b.node_id = node_translation[str(p.nodeId)]
+        new_b.draft = False
+        new_b.key = slugify(p.title if len(p.title) < 64 else p.title[:64])
+        blog_translation[str(p.id)] = new_b.id
+
+        if p.tags is not None:
+            old_t = p.tags.encode().split('|')
+            old_t = filter((lambda x: x is not ''), old_t)
+
+            for t in old_t:
+                t = slugify(u'%s'%t)
+
+                try:
+                    t_obj = model.DBSession.query(model.Tag).filter(model.Tag.name==t).one()
+                except NoResultFound:
+                    t_obj = model.Tag(name=t)
+
+                new_b.tags.append(t_obj)
+
+        model.DBSession.add(new_b)
+
+        while not tryCommit():
+            print "DUP KEY, FIXING: %s" % new_b.key
+            new_b.key = new_b.key + u"_"
