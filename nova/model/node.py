@@ -31,6 +31,13 @@ node_tag_table = Table('node_tag', metadata,
     Column('tag_name', Unicode, ForeignKey('tags.name',
         onupdate="CASCADE", ondelete="CASCADE"), primary_key=True))
 
+node_pic_table = Table('node_picture_links', metadata,
+    Column('node_id', String(36), ForeignKey('node_model.id',
+        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True),
+    Column('image_id', String(36), ForeignKey('images.id',
+        onupdate="CASCADE", ondelete="CASCADE"), primary_key=True))
+
+
 class Vocab(DeclarativeBase):
     '''An object defining an node attribute'''
     __tablename__ = 'vocab_model'
@@ -84,7 +91,7 @@ class Node(DeclarativeBase):
     owner_id = Column(Integer, ForeignKey('tg_user.user_id'))
     owner = relationship("User") 
 
-    picture = Column(Unicode, nullable=True)
+    pictures = relationship("ImageFile", backref="linked_to", secondary=node_pic_table, uselist=True)
     attrs = Column(PickleType(pickler=json), nullable=True)
 
     content = Column(Unicode, nullable=True)

@@ -13,7 +13,7 @@ from repoze.what import predicates
 # project specific imports
 from nova.lib.base import BaseController
 from tg.controllers import RestController
-from nova.model import DBSession, metadata, Node, NodeType, Vocab, Tag, Revision
+from nova.model import DBSession, metadata, Node, NodeType, Vocab, Tag, Revision, ImageFile
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from tw2.qrcode import QRCodeWidget
 from tw2.jqplugins.ui import ButtonWidget
@@ -24,6 +24,7 @@ import tw2.core
 from tw2.tinymce import TinyMCE, MarkupConverter
 from formencode.validators import NotEmpty, Regex
 from tw2.jqplugins.tagify import Tagify
+from nova.util import distill, revise_and_commit
 
 class NodeRestController(RestController):
 
@@ -90,7 +91,7 @@ class NodeRestController(RestController):
             cols = 80
 
         class TagList(Tagify):
-            id = "tag_miu"
+            id = "tags_miu"
 
         class Submit(tw2.forms.SubmitButton):
             id = "submit_button"
@@ -113,11 +114,9 @@ class NodeRestController(RestController):
         from tg import request # HACK: Don't know why i need this here but i do
 
         attrs_list = dict((k[5-len(k):], v) for k, v in kw.iteritems() if k[0:5] == u'attr:')
-        tags = filter((lambda x: len(x) > 0), kw['tag_miu'].split(','))
-        for i, tag in enumerate(tags):
-            tags[i] = tag.strip()
-        
-        tags = [x for x in tags if len(x) is not 0]
+  
+        tags = distill(kw['tags_miu'])
+        pic_links = distill(kw['node_def_images'])
         # Triple distilled tags
 
         n_type = DBSession.query(NodeType).filter(NodeType.key==kw['sel_type'].encode()).one()
@@ -139,6 +138,14 @@ class NodeRestController(RestController):
 
             n.tags.append(t_obj)
 
-        revise_and_commit(n, user) # This is where the magic happens
+        for pic in pic_links:
+            try:
+                p_obj = DBSession.query(ImageFile).filter(ImageFile.key==pic).one()
+                n.pictures.append(p_obj)
+            except:
+                raise
+                pass # Picture key doesnt exist, ignore it
+
+        revise_and_commit(n, user['user']) # This is where the magic happens
 
         redirect("./node/"+kw['new_node_key'])

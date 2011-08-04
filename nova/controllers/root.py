@@ -12,6 +12,7 @@ from nova.controllers.secure import SecureController
 
 from nova.controllers.error import ErrorController
 from nova.controllers.node_rest import NodeRestController
+
 from nova.controllers.widgets import WidgetController
 from nova.controllers.images import ImageRestController
 
@@ -101,7 +102,7 @@ class RootController(BaseController):
             redirect('/login', came_from=came_from, __logins=login_counter)
         userid = request.identity['repoze.who.userid']
         flash(_('Welcome back, %s!') % userid)
-        redirect("/%s"%userid)
+        redirect("/node/%s"%userid)
 
     @expose()
     def post_logout(self, came_from=url('/')):

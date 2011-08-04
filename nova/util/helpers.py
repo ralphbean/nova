@@ -18,7 +18,7 @@ def gen_image_cache(file_data):
     img_t_s.save("nova/public/images/assets/%s_s%s" % (new_basename, ext))
 
     img_t_m = image_data.copy()
-    img_t_m.thumbnail((90,90), Image.ANTIALIAS)
+    img_t_m.thumbnail((200,200), Image.ANTIALIAS)
     img_t_m.save("nova/public/images/assets/%s_m%s" % (new_basename, ext))
 
     img_t_l = image_data.copy()
@@ -26,3 +26,12 @@ def gen_image_cache(file_data):
     img_t_l.save("nova/public/images/assets/%s_l%s" % (new_basename, ext))
 
     return new_basename, ext
+
+def distill(data_in, sep=','):
+    data = filter((lambda x: len(x) > 0), data_in.split(sep))
+    for i, d in enumerate(data):
+        data[i] = d.strip()
+
+    data = [x for x in data if len(x) is not 0]
+
+    return data

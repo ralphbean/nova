@@ -24,6 +24,7 @@ from nova.util import *
 from os.path import splitext
 
 class ImageRestController(RestController):
+
     @expose()
     def get_one(self, key, *args, **kw):
         obj = DBSession.query(ImageFile).filter(ImageFile.key==key).one()
@@ -36,6 +37,7 @@ class ImageRestController(RestController):
         base = base[:-1] + size_mod
 
         return redirect("/images/assets/%s%s" % (base, ext))
+
 
     @expose('nova.templates.images.index')
     @require(predicates.not_anonymous(msg='You need to be logged in to view your image catalog'))

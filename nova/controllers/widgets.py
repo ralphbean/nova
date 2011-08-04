@@ -49,13 +49,12 @@ def PolyMapWidget(**kw):
 
 
 class WidgetPuncher(object):
-
     @expose('nova.templates.widgets.full')
     def default(self, *args, **kw):
         try:
             obj = DBSession.query(Vocab).filter(Vocab.key==args[0]).one()
         except:
-            return ""
+            return dict()
         kw['label'] = obj.name
         return dict(title=obj.name, desc=obj.description, w=BasicInputWidget(**kw), additional="_50")
 
