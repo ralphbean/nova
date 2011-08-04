@@ -511,3 +511,15 @@ vertical-align:top;
     text-align: center;
     font-size: 12px;
 }
+
+#picture-list li
+{
+    display: inline-block;
+    margin: 2px;
+    padding: 0.3em;
+}
+
+#picture-list li.ui-selected
+{
+    background-color: #333;
+}
