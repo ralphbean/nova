@@ -127,8 +127,8 @@ class NodeWatch(DeclarativeBase):
 
     watched_by_id = Column("watched_by_id", String(36), ForeignKey("node_model.id"))
     watched_by = relationship("Node", backref="watching",  primaryjoin=(Node.id == watched_by_id))
-    watched_id = Column("watch_id", String(36), ForeignKey("node_model.id"))
-    watched = relationship("Node", backref="watched_by",  primaryjoin=(Node.id == watched_id))
+    watching_id = Column("watch_id", String(36), ForeignKey("node_model.id"))
+    watching = relationship("Node", backref="watched_by",  primaryjoin=(Node.id == watching_id))
 
 
 class Revision(DeclarativeBase):

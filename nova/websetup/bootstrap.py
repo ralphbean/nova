@@ -192,6 +192,11 @@ def bootstrap(command, conf, vars):
     t_old_blog = Table('blog', old_metadata, autoload=True, autoload_with=old_engine)
     mapper(old_blog, t_old_blog)
 
+    class old_link(object):
+        pass
+    t_old_link = Table('linktable', old_metadata, autoload=True, autoload_with=old_engine)
+    mapper(old_link, t_old_link)
+
 
     old_metadata.reflect(bind=old_engine)
     OldDBSession.configure(bind=old_engine)
@@ -371,4 +376,19 @@ def bootstrap(command, conf, vars):
             print "DUP KEY, FIXING: %s" % new_b.key
             new_b.key = new_b.key + u"_"
 
-        model.DBSession.flush()
+
+    ##### NODE LINK MIGRATION
+    old_links = t_old_link
+
+    o_links = OldDBSession.query(old_links)
+
+    g = get_guid_gen()
+    for l in o_links:
+        new_l = model.NodeWatch(id=g.next())
+        new_l.watched_by_id = node_translation[str(l.nodeId)]
+        new_l.watching_id = node_translation[str(l.linkId)]
+
+        model.DBSession.add(new_l)
+
+        while not tryCommit():
+            pass
