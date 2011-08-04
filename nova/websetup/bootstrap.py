@@ -345,6 +345,12 @@ def bootstrap(command, conf, vars):
         new_b.key = slugify(p.title if len(p.title) < 64 else p.title[:64])
         blog_translation[str(p.id)] = new_b.id
 
+        try:
+            while model.DBSession.query(model.BlogPost).filter(model.BlogPost.key==new_b.key).one():
+                new_b.key = new_b.key + "_"
+        except NoResultFound:
+            pass
+
         if p.tags is not None:
             old_t = p.tags.encode().split('|')
             old_t = filter((lambda x: x is not ''), old_t)
@@ -364,3 +370,5 @@ def bootstrap(command, conf, vars):
         while not tryCommit():
             print "DUP KEY, FIXING: %s" % new_b.key
             new_b.key = new_b.key + u"_"
+
+        model.DBSession.flush()
