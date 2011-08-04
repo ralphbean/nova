@@ -1,0 +1,33 @@
+.img-box
+{
+    position: relative;
+    overflow: visible;
+    display: block;
+    height: 200px;
+    width: 200px;
+    text-align: center;
+    margin: 0 auto 0 auto;
+}
+
+.img-box .i-block
+{
+    display: inline-block;
+    position: absolute;
+}
+
+
+ul.img-box-sel
+{
+    clear:both;
+    text-align: center;
+}
+.img-box-sel li
+{
+    padding: 2px;
+    display: inline-block;
+}
+
+.img-box-sel .ui-selected
+{
+    background-color: #666;
+}

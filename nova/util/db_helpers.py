@@ -2,6 +2,7 @@ import re
 from nova.model import DBSession, Node, BlogPost, Revision, ImageFile
 from unicodedata import normalize
 from nova.util.htmldiff import text_diff
+from uuid import uuid4 
 
 _punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 
@@ -61,19 +62,19 @@ import transaction
 
 
 def revise_and_commit(item, user=None):
-    key = item.id
     item_cls = item.__class__
     try:
         old_item = DBSession.query(item_cls).filter(item_cls.id==key).one()
+        key = old_item.id
     except:
         old_item = None # This may be a new item so there wont be an old object
+        key = str(uuid4())
 
     revision = Revision()
     revision.item_id = key
     revision.content = item.content
 
     item.modified = revision.modified = datetime.now()
-    revision.item_id = item.id
 
     revision.title = (user.display_name+" " if user else '') + "Modified content"
     if old_item:

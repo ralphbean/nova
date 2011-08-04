@@ -9,6 +9,9 @@
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
   <title>Nova - Create a new node</title>
+  <script type="text/javascript" src="${tg.url('/javascript/jquery.iframe-post-form.min.js')}"></script>
+  <script type="text/javascript" src="${tg.url('/javascript/img-box.js')}"></script>
+  <link rel="stylesheet" type="text/css" href="/css/img-box.css" />
 </head>
 
 <body>
@@ -52,27 +55,29 @@
             <div id="#new_node_key_error"></div>
             <script>
                 <!--
-                $("#new_node_name").bind('keyup', function() {
-                    $(this).data("edited", "true");
-                    if ($(this).val() == "")
-                    {
-                        $(this).removeData("edited");
-                        $("#new_node_key").removeData("edited");
-                    }
-                    if ($("#new_node_key").data("edited") === undefined)
-                    {
-                        $("#new_node_key").val(slugify($(this).val()));
-                        validate_key();
-                    }
-                });
+                $(function() {
+                    $("#new_node_name").bind('keyup', function() {
+                        $(this).data("edited", "true");
+                        if ($(this).val() == "")
+                        {
+                            $(this).removeData("edited");
+                            $("#new_node_key").removeData("edited");
+                        }
+                        if ($("#new_node_key").data("edited") === undefined)
+                        {
+                            $("#new_node_key").val(slugify($(this).val()));
+                            validate_key();
+                        }
+                    });
 
-                $("#new_node_key").bind('keyup', function() {
-                    $(this).data("edited", "true");
-                    if ($(this).val() == "")
-                    {
-                        $(this).removeData("edited");
-                    }
-                    validate_key();
+                    $("#new_node_key").bind('keyup', function() {
+                        $(this).data("edited", "true");
+                        if ($(this).val() == "")
+                        {
+                            $(this).removeData("edited");
+                        }
+                        validate_key();
+                    });
                 });
                 -->
             </script>
@@ -82,12 +87,20 @@
     <div class="content-block part">
         <h1>2. Upload a picture</h1>
         <div class="content">
-            <p>
-                <a href="${tg.url('imgsrv/new')}">Upload a picture</a>
-                <span id="select-pic-link">Select an already uploaded picture</span>
+            <div class="img-viewer-container">
+            </div>
+            <script>
+            $(function() {
+               //$(".img-viewer-container").img_box(['jhjhjhjhh', 'tets-image']);
+            });
+            </script>
+            <p style="text-align:center">
+                <span id="select-pic-link">Select pictures</span>
                 <script>
-                    $("#select-pic-link").button().click(function () {
-                        $("#picture-dialog-form").dialog('open');
+                    $(function() {
+                        $("#select-pic-link").button().click(function () {
+                            $("#picture-dialog-form").dialog('open');
+                        });
                     });
                 </script>
                 <input type="hidden" id="node_def_images" name="node_def_images"/>
@@ -141,46 +154,98 @@
 
 <div id="picture-dialog-form" title="Select a picture">
     <p>
+    <span id="image-upload-button">Upload an image...</span>
         <ul id="picture-list">
         </ul>
     </p>
 </div>
-<script>
-    $( "#picture-dialog-form" ).dialog({
-        autoOpen: false,
-        height: 400,
-        width: 450,
-        modal: true,
-        resizable: false,
-        buttons: {
-            "Select Picture": function() {
-                var sel_pics = $("#picture-list .ui-selected");
-                var d = "";
-                $.each(sel_pics, function(i,v)  {
-                    d = d + ","+v.id;
-                });
-                $("#node_def_images").val(d);
-                $(this).dialog('close');
-            },
-            Cancel: function() {
-                $(this).dialog('close');
-            }
-        },
-        open: function() {
-            var o_click = function() {
-                $(this).toggleClass('ui-selected');
-            }
-            $.getJSON('/node/json/get_images', function(data) {
-                var pic_list = $("#picture-list");
-                pic_list.empty();
-                $.each(data.images, function(i, v) {
-                    var d = '<li id="'+v.key+'" title="'+v.name+'"><img src="/imgsrv/'+v.key+'?size=m" /><p>'+v.name+'</p></li>';
-                    $(d).click(o_click).appendTo(pic_list);
+
+<div id="upload-form" title="Upload a new image">
+    <p>
+        <form action="/imgsrv/" method="POST" id="image-upload-form" enctype="multipart/form-data">
+            Name: <input type="text" name="image_name" id="image_name" /><br />
+            <input type="file" name="image_file" id="image_file" />
+            <input type="submit" />
+        </form>
+        <script>
+            $(function() {
+                $("#image-upload-form").iframePostForm({
+                    'post': function() {
+                    },
+                    'complete': function() {
+                        $.getJSON('/node/json/get_images', function(data) {
+                            var pic_list = $("#picture-list");
+                            pic_list.empty();
+                            $.each(data.images, function(i, v) {
+                                var d = '<li id="'+v.key+'" title="'+v.name+'"><img src="/imgsrv/'+v.key+'?size=m" /><p>'+v.name+'</p></li>';
+                                $(d).click(o_click).appendTo(pic_list);
+                            });
+                        });
+                        $("#upload-form").dialog('close');
+                    }
                 });
             });
-        },
-        close: function() {
-        }
+        </script>
+    </p>
+</div>
+
+<script>
+var o_click = function() {
+    $(this).toggleClass('ui-selected');
+}
+
+    $(function() {
+        $( "#upload-form").dialog({
+            autoOpen: false,
+            height: 200,
+            width: 500,
+            modal: true,
+            resizable: false
+
+        });
+        $( "#image-upload-button").button().click(function() {
+            $("#upload-form").dialog('open');
+        });
+
+        $( "#picture-dialog-form" ).dialog({
+            autoOpen: false,
+            height: 400,
+            width: 450,
+            modal: true,
+            resizable: false,
+            buttons: {
+                "Select Picture": function() {
+                    var sel_pics = $("#picture-list .ui-selected");
+                    var d = "";
+                    var s = [];
+                    $.each(sel_pics, function(i,v)  {
+                        d = d + ","+v.id;
+                        s.push(v.id);
+                    });
+                    $("#node_def_images").val(d);
+                    $(".img-viewer-container").img_box(s);
+                    $(this).dialog('close');
+                },
+                Cancel: function() {
+                    $(this).dialog('close');
+                }
+            },
+            open: function() {
+                var o_click = function() {
+                    $(this).toggleClass('ui-selected');
+                }
+                $.getJSON('/node/json/get_images', function(data) {
+                    var pic_list = $("#picture-list");
+                    pic_list.empty();
+                    $.each(data.images, function(i, v) {
+                        var d = '<li id="'+v.key+'" title="'+v.name+'"><img src="/imgsrv/'+v.key+'?size=m" /><p>'+v.name+'</p></li>';
+                        $(d).click(o_click).appendTo(pic_list);
+                    });
+                });
+            },
+            close: function() {
+            }
+        });
     });
 </script>
 </body>

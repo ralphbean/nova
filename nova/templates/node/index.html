@@ -9,13 +9,24 @@
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type" py:replace="''"/>
   <title>Nova TG2 Refactor Beta</title>
+  <script type="text/javascript" src="${tg.url('/javascript/img-box.js')}"></script>
+  <link rel="stylesheet" type="text/css" href="/css/img-box.css" />
+
 </head>
 
 <body>
     <div class="content-block full">
         <h1>${node.node_type.name.upper()}</h1>
         <div class="content">
-            <img class="head-image" py:attrs="{'src': node.picture if node.picture is not None else '/images/no_bio_image.gif'}" />
+            <py:if test="node.pictures is None">
+            <img class="head-image" src='/images/no_bio_image.gif' />
+            </py:if>
+            <py:if test="node.pictures is not None">
+            <div class="head-image"></div>
+            <script>
+                $('.head-image').img_box(${str([p.key.encode() for p in node.pictures])});
+            </script>
+            </py:if>
             <div class="inner-content">
                 <h2>${node.name}</h2>
                 ${Markup(node.content)}
@@ -26,10 +37,12 @@
     <div class="content-block part_50">
         <h1>BLOG</h1>
         <div class="content">
+            <p>
             <ol>
                 <li py:for="post in node.blog_posts">${post.created} | ${post.name}
                 </li>
             </ol>
+            </p>
         </div>
     </div>
 
