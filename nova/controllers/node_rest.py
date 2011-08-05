@@ -24,7 +24,7 @@ import tw2.core
 from tw2.tinymce import TinyMCE, MarkupConverter
 from formencode.validators import NotEmpty, Regex
 from tw2.jqplugins.tagify import Tagify
-from nova.util import distill, revise_and_commit
+from nova.util import distill, revise_and_commit, get_revision_feed, get_blog_posts_feed
 
 class NodeRestController(RestController):
 
@@ -55,7 +55,13 @@ class NodeRestController(RestController):
 
         revisions = DBSession.query(Revision).filter(Revision.item_id==obj.id).order_by('modified desc')
 
-        return dict(tags=tags, node=obj, qrcode=qr, revisions=revisions)
+        get_revision_feed(obj)
+        get_blog_posts_feed(obj)
+
+        return dict(tags=tags, node=obj, qrcode=qr, revisions=revisions,
+                    blog_link="/feeds/%s-blog.atom"%obj.key,
+                    rev_link="/feeds/%s-revisions.atom"%obj.key
+        )
 
 
     @expose('nova.templates.index')
