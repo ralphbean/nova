@@ -3,6 +3,7 @@ from nova.model import DBSession, Node, BlogPost, Revision, ImageFile
 from unicodedata import normalize
 from nova.util.htmldiff import text_diff
 from uuid import uuid4 
+from nova.util.feed_helpers import *
 
 _punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
 
@@ -85,4 +86,10 @@ def revise_and_commit(item, user=None):
     DBSession.add(item)
     DBSession.add(revision)
     DBSession.flush()
+
+    if item_cls is Node:
+        generate_node_revision_feed(item)
+    elif item_cls is BlogPost:
+        generate_blog_post_feed(item.node)
+
     transaction.commit()
