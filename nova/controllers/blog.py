@@ -47,7 +47,9 @@ class BlogRestController(RestController):
         latest_posts = DBSession.query(BlogPost).filter(
                         BlogPost.node==node).order_by('modified desc')
 
-        return dict(node=node, updates=latest_posts)
+        get_blog_post_feed(node)
+
+        return dict(node=node, updates=latest_posts, blog_link="/feeds/%s-blog.atom"%node.key)
 
 
     @expose('nova.templates.blog.new')

@@ -86,9 +86,10 @@ def revise_and_commit(item, user=None):
     DBSession.add(item)
     DBSession.add(revision)
     DBSession.flush()
-    transaction.commit()
 
     if item_cls is Node:
         generate_node_revision_feed(item)
     elif item_cls is BlogPost:
         generate_blog_post_feed(item.node)
+
+    transaction.commit()
