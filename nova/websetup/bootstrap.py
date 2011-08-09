@@ -187,9 +187,34 @@ def bootstrap(command, conf, vars):
     t_old_node = Table('node', old_metadata, autoload=True, autoload_with=old_engine)
     mapper(old_node, t_old_node)
 
+    class old_blog(object):
+        pass
+    t_old_blog = Table('blog', old_metadata, autoload=True, autoload_with=old_engine)
+    mapper(old_blog, t_old_blog)
+
+    class old_link(object):
+        pass
+    t_old_link = Table('linktable', old_metadata, autoload=True, autoload_with=old_engine)
+    mapper(old_link, t_old_link)
+
+    class old_attr(object):
+        pass
+    t_old_attr = Table('nodeattr', old_metadata, autoload=True, autoload_with=old_engine)
+    mapper(old_attr, t_old_attr)
 
     old_metadata.reflect(bind=old_engine)
     OldDBSession.configure(bind=old_engine)
+
+    def tryCommit():
+        try:
+            model.DBSession.flush()
+            transaction.commit()
+            return True
+        except IntegrityError:
+            print "THERE IS A PROBLEM"
+            return False
+
+
 
     ##### MIGRATE USERS
 
@@ -286,7 +311,8 @@ def bootstrap(command, conf, vars):
         new_n.node_type = model.DBSession.query(model.NodeType).filter(model.NodeType.id==nodetype_translation[str(n.type)]).one()
         new_n.content = n.description
         new_n.owner = model.DBSession.query(model.User).filter(model.User.user_id==user_translation[str(n.modified_by)]).one()
-        new_n.attrs = {}
+
+        node_translation[str(n.id)] = new_n.id
 
         if n.tags is not None:
             old_t = n.tags.encode().split('|')
@@ -302,14 +328,93 @@ def bootstrap(command, conf, vars):
 
                 new_n.tags.append(t_obj)
 
+        node_translation[str(n.id)] = new_n.id
         model.DBSession.add(new_n)
 
+        while not tryCommit():
+            new_n.key = new_n.key + u"_"
+            node_translation[str(n.id)] = new_n.id
+
+
+    ##### NODE ATTRS MIGRATION
+    old_attrs = t_old_attr
+
+    o_attrs = OldDBSession.query(old_attrs)
+
+    for a in o_attrs:
+        new_a = model.Attribute()
+        
+        print "Node: %i, Attr: %i" % (a.nodeId, a.vocab)
+        node = model.DBSession.query(model.Node).filter(model.Node.id==node_translation[str(a.nodeId)]).one()
+        vocab = model.DBSession.query(model.Vocab).filter(model.Vocab.id==vocab_translation[str(a.vocab)]).one()
+        new_a.vocab = vocab
+        new_a.node = node
+        new_a.value = a.value
+
+        model.DBSession.add(new_a)
+        model.DBSession.flush()
+
+        transaction.commit()
+
+
+    ##### MIGRATE BLOGS
+
+    old_blogs = t_old_blog
+
+    blog_translation = {}
+    o_posts = OldDBSession.query(old_blogs)
+
+    g = get_guid_gen()
+    for p in o_posts:
+        new_b = model.BlogPost(id=g.next())
+
+        new_b.name = p.title
+        new_b.content = p.body
+        new_b.owner_id = user_translation[str(p.author)]
+        new_b.node_id = node_translation[str(p.nodeId)]
+        new_b.draft = False
+        new_b.key = slugify(p.title if len(p.title) < 64 else p.title[:64])
+        blog_translation[str(p.id)] = new_b.id
+
         try:
-            model.DBSession.flush()
+            while model.DBSession.query(model.BlogPost).filter(model.BlogPost.key==new_b.key).one():
+                new_b.key = new_b.key + "_"
+        except NoResultFound:
+            pass
 
-            transaction.commit()
-        except IntegrityError:
-            new_n.key = new_n.key + "_"
+        if p.tags is not None:
+            old_t = p.tags.encode().split('|')
+            old_t = filter((lambda x: x is not ''), old_t)
 
-            model.DBSession.flush()
-            transaction.commit()
+            for t in old_t:
+                t = slugify(u'%s'%t)
+
+                try:
+                    t_obj = model.DBSession.query(model.Tag).filter(model.Tag.name==t).one()
+                except NoResultFound:
+                    t_obj = model.Tag(name=t)
+
+                new_b.tags.append(t_obj)
+
+        model.DBSession.add(new_b)
+
+        while not tryCommit():
+            print "DUP KEY, FIXING: %s" % new_b.key
+            new_b.key = new_b.key + u"_"
+
+
+    ##### NODE LINK MIGRATION
+    old_links = t_old_link
+
+    o_links = OldDBSession.query(old_links)
+
+    g = get_guid_gen()
+    for l in o_links:
+        new_l = model.NodeWatch(id=g.next())
+        new_l.watched_by_id = node_translation[str(l.nodeId)]
+        new_l.watching_id = node_translation[str(l.linkId)]
+
+        model.DBSession.add(new_l)
+
+        while not tryCommit():
+            pass

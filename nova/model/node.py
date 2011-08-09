@@ -92,7 +92,8 @@ class Node(DeclarativeBase):
     owner = relationship("User") 
 
     pictures = relationship("ImageFile", backref="linked_to", secondary=node_pic_table, uselist=True)
-    attrs = Column(PickleType(pickler=json), nullable=True)
+
+    attrs = relationship("Attribute", backref='node', uselist=True)
 
     content = Column(Unicode, nullable=True)
 
@@ -106,6 +107,19 @@ class Node(DeclarativeBase):
     editors = relationship('User', backref="editing", secondary=node_editor_table, uselist=True)
 
     #}
+
+class Attribute(DeclarativeBase):
+    __tablename__ = "node_attrs"
+
+    id = Column(String(36), primary_key=True, default=lambda : str(uuid4()))
+
+    vocab_id = Column(Integer, ForeignKey('vocab_model.id'))
+    vocab = relationship("Vocab")
+
+    node_id = Column(String(36), ForeignKey('node_model.id'))
+
+    value = Column(Unicode)
+
 
 class Tag(DeclarativeBase):
     __tablename__ = "tags"
@@ -127,8 +141,8 @@ class NodeWatch(DeclarativeBase):
 
     watched_by_id = Column("watched_by_id", String(36), ForeignKey("node_model.id"))
     watched_by = relationship("Node", backref="watching",  primaryjoin=(Node.id == watched_by_id))
-    watched_id = Column("watch_id", String(36), ForeignKey("node_model.id"))
-    watched = relationship("Node", backref="watched_by",  primaryjoin=(Node.id == watched_id))
+    watching_id = Column("watch_id", String(36), ForeignKey("node_model.id"))
+    watching = relationship("Node", backref="watched_by",  primaryjoin=(Node.id == watching_id))
 
 
 class Revision(DeclarativeBase):

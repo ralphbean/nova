@@ -64,13 +64,13 @@
 
 <h2>Attributes:</h2>
 <ul>
-    <py:for each="key in dict((k,node.attrs[k]) for k in node.attrs if node.attrs[k].data is not None and node.attrs[k].data is not '')">
-    <li py:with="v = node.attrs[key]">
+    <py:for each="attr in node.attrs">
+    <li>
     <py:choose>
-        <a py:when="key == u'website'" py:attrs="{'href':v.data, 'title':'%s\'s Website'%node.name}">Website</a>
-        <py:when test="key == u'insp-person'">${v.vocab.name}: <a py:attrs="{'href':'/%s'%v.data.key,'title':v.data.name}">${v.data.name}</a>
+        <a py:when="attr.vocab.key == u'website'" py:attrs="{'href':attr.value, 'title':'%s\'s Website'%node.name}">Website</a>
+        <py:when test="attr.vocab.key == u'insp-person'">${attr.vocab.name}: <a py:attrs="{'href':'/node/%s'%attr.value}">${v.data.name}</a>
         </py:when>
-        <py:otherwise>${v.vocab.name}: ${v.data}</py:otherwise>
+        <py:otherwise>${attr.vocab.name}: ${attr.value}</py:otherwise>
     </py:choose>
     </li>
     </py:for>
