@@ -13,7 +13,7 @@ from repoze.what import predicates
 # project specific imports
 from nova.lib.base import BaseController
 from tg.controllers import RestController
-from nova.model import DBSession, metadata, Node, NodeType, Vocab, Tag, Revision, ImageFile
+from nova.model import DBSession, metadata, Node, NodeType, Attribute, Vocab, Tag, Revision, ImageFile
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from tw2.qrcode import QRCodeWidget
 from tw2.jqplugins.ui import ButtonWidget
@@ -38,19 +38,6 @@ class NodeRestController(RestController):
                 Node.key.like("%%%s%%" % node_name)).one()
         qr = QRCodeWidget(id="nodeqr", data=url("http://127.0.0.1/" + obj.key))
 
-        for attr in obj.attrs:
-            v = DBSession.query(Vocab).filter(
-                    Vocab.key.like("%%%s%%" % attr)).one()
-
-            if v.resolve:
-                if obj.attrs[attr] is not '':
-                    t_obj = DBSession.query(Node).filter(
-                        Node.key.like("%%%s%%" % obj.attrs[attr])).one()
-                else:
-                    t_obj = None
-                obj.attrs[attr] = t_obj
-
-            obj.attrs[attr] = {'data': obj.attrs[attr], 'vocab': v}
         tags = DBSession.query(Tag).all()
 
         revisions = DBSession.query(Revision).filter(Revision.item_id==obj.id).order_by('modified desc')
@@ -135,7 +122,11 @@ class NodeRestController(RestController):
         
         user = request.identity
         n.owner = user['user']
-        n.attrs = attrs_list
+
+        for attr in attrs_list:
+            vocab = DBSession.query(Vocab).filter(Vocab.key==attr).one()
+            n.attrs.append(Attribute(vocab=vocab, value=attrs_list[attr]))
+
         for tag in tags:
             try:
                 t_obj = DBSession.query(Tag).filter(Tag.name==tag).one()

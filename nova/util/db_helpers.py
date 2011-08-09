@@ -5,7 +5,7 @@ from nova.util.htmldiff import text_diff
 from uuid import uuid4 
 from nova.util.feed_helpers import *
 
-_punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^_`{|},.]+')
+_punct_re = re.compile(r'[\t !"#$%&\'()*\-/<=>?@\[\\\]^`{|},.]+')
 
 def slugify(text, delim=u'-'):
     """Generates an slightly worse ASCII-only slug."""

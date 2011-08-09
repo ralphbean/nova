@@ -92,7 +92,8 @@ class Node(DeclarativeBase):
     owner = relationship("User") 
 
     pictures = relationship("ImageFile", backref="linked_to", secondary=node_pic_table, uselist=True)
-    attrs = Column(PickleType(pickler=json), nullable=True)
+
+    attrs = relationship("Attribute", backref='node', uselist=True)
 
     content = Column(Unicode, nullable=True)
 
@@ -106,6 +107,19 @@ class Node(DeclarativeBase):
     editors = relationship('User', backref="editing", secondary=node_editor_table, uselist=True)
 
     #}
+
+class Attribute(DeclarativeBase):
+    __tablename__ = "node_attrs"
+
+    id = Column(String(36), primary_key=True, default=lambda : str(uuid4()))
+
+    vocab_id = Column(Integer, ForeignKey('vocab_model.id'))
+    vocab = relationship("Vocab")
+
+    node_id = Column(String(36), ForeignKey('node_model.id'))
+
+    value = Column(Unicode)
+
 
 class Tag(DeclarativeBase):
     __tablename__ = "tags"

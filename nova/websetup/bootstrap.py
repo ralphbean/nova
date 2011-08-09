@@ -197,6 +197,10 @@ def bootstrap(command, conf, vars):
     t_old_link = Table('linktable', old_metadata, autoload=True, autoload_with=old_engine)
     mapper(old_link, t_old_link)
 
+    class old_attr(object):
+        pass
+    t_old_attr = Table('nodeattr', old_metadata, autoload=True, autoload_with=old_engine)
+    mapper(old_attr, t_old_attr)
 
     old_metadata.reflect(bind=old_engine)
     OldDBSession.configure(bind=old_engine)
@@ -307,7 +311,6 @@ def bootstrap(command, conf, vars):
         new_n.node_type = model.DBSession.query(model.NodeType).filter(model.NodeType.id==nodetype_translation[str(n.type)]).one()
         new_n.content = n.description
         new_n.owner = model.DBSession.query(model.User).filter(model.User.user_id==user_translation[str(n.modified_by)]).one()
-        new_n.attrs = {}
 
         node_translation[str(n.id)] = new_n.id
 
@@ -325,10 +328,33 @@ def bootstrap(command, conf, vars):
 
                 new_n.tags.append(t_obj)
 
+        node_translation[str(n.id)] = new_n.id
         model.DBSession.add(new_n)
 
         while not tryCommit():
             new_n.key = new_n.key + u"_"
+            node_translation[str(n.id)] = new_n.id
+
+
+    ##### NODE ATTRS MIGRATION
+    old_attrs = t_old_attr
+
+    o_attrs = OldDBSession.query(old_attrs)
+
+    for a in o_attrs:
+        new_a = model.Attribute()
+        
+        print "Node: %i, Attr: %i" % (a.nodeId, a.vocab)
+        node = model.DBSession.query(model.Node).filter(model.Node.id==node_translation[str(a.nodeId)]).one()
+        vocab = model.DBSession.query(model.Vocab).filter(model.Vocab.id==vocab_translation[str(a.vocab)]).one()
+        new_a.vocab = vocab
+        new_a.node = node
+        new_a.value = a.value
+
+        model.DBSession.add(new_a)
+        model.DBSession.flush()
+
+        transaction.commit()
 
 
     ##### MIGRATE BLOGS
