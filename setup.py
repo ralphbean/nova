@@ -43,6 +43,7 @@ setup(
         'tw2.polymaps',
         'tw2.duckpunch',
         'PIL',
+        "transaction",
         ],
     setup_requires=["PasteScript >= 1.7"],
     paster_plugins=['PasteScript', 'Pylons', 'TurboGears2'],
