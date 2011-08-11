@@ -100,8 +100,20 @@ class RootController(BaseController):
         if not request.identity:
             login_counter = request.environ['repoze.who.logins'] + 1
             redirect('/login', came_from=came_from, __logins=login_counter)
-        userid = request.identity['repoze.who.userid']
-        flash(_('Welcome back, %s!') % userid)
+        userid = request.identity['uid'][0]
+        if not model.User.query.filter_by(user_name=userid).count():
+            # This is the user's first time.  Add his/her account.
+            user = model.User()
+            user.user_name = userid
+            user.email_address = '%s@rit.edu' % userid
+            user.display_name = request.identity.get(
+                'displayName', ['no name in ldap'])[0]
+            model.DBSession.add(user)
+            model.DBSession.flush()
+            flash(_('Welcome, %s!') % userid)
+        else:
+            flash(_('Welcome back, %s!') % userid)
+
         redirect("/node/%s"%userid)
 
     @expose()
