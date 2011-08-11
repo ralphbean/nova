@@ -110,6 +110,14 @@ class RootController(BaseController):
                 'displayName', ['no name in ldap'])[0]
             model.DBSession.add(user)
             model.DBSession.flush()
+
+            ## TODO -- create a new 'people' node for new users here.
+            #node = model.Node()
+            #node.key = user.user_name
+            #model.DBSession.add(node)
+            #model.DBSession.flush()
+
+            # And say hello!
             flash(_('Welcome, %s!') % userid)
         else:
             flash(_('Welcome back, %s!') % userid)
